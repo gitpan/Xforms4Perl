@@ -18,7 +18,6 @@
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-
 /*
  * Buffer size for arbritary string buffers. Only used by fl_get_resource
  * and my version of croak
@@ -41,13 +40,8 @@ typedef FL_FORM         FLForm;
 typedef FL_OBJECT       FLObject;
 typedef FL_IOPT 	FLOpt;
 typedef FD_FSELECTOR 	FDFselector;
-
-#if FL_INCLUDE_VERSION >= 84
 typedef FD_CMDLOG 	FDCmdlog;
-#if FL_INCLUDE_VERSION >= 85
 typedef FL_EditKeymap 	FLEditKeymap;
-#endif
-#endif
 
 /*
  * Mirror of FL_IOPT sturcture that gives the integers as an array
@@ -57,11 +51,7 @@ typedef FL_EditKeymap 	FLEditKeymap;
 typedef struct
 {
     float rgamma, ggamma, bgamma;
-#if FL_INCLUDE_VERSION < 84
-    int opt_int[24];
-#else
     int opt_int[23];
-#endif
     char *rgbfile;		/* where RGB file is     */
     char vname[24];
 } FL_IOPT_ARRAY;
@@ -72,12 +62,8 @@ typedef struct
  */
 typedef struct
 {
-#if FL_INCLUDE_VERSION < 84
-    void *fsel_ob[9];
-#else
     void *fsel_ob[11];
     FL_OBJECT *appbutt[3];
-#endif
 } FD_FSEL_ARRAY;
 
 /*
@@ -105,11 +91,12 @@ typedef struct
 
 typedef struct 
 {
-#if FL_INCLUDE_VERSION >= 84
     void *fdui;			/* for fdesign              */
     void *u_vdata;		/* for application          */
-    long u_ldata;
+#if FL_INCLUDE_VERSION >= 87
+	char *u_cdata;
 #endif
+    long u_ldata;
 
     char *label;		/* window title             */
     unsigned long window;	/* X resource ID for window */
@@ -140,17 +127,13 @@ typedef struct
     FL_FORM_ATCLOSE close_callback;
     void *close_data;
 
-#if FL_INCLUDE_VERSION < 84
-    void *u_vdata;		/* for application          */
-#endif
-
     void *flpixmap;		/* back buffer             */
 
     unsigned long icon_pixmap;
     unsigned long icon_mask;
 
     /* interaction and other flags */
-    int flf_int[9];
+    int flf_int[10];
 /*    int vmode;			/* current X visual class  */
 /*    int deactivated;		/* true if sensitive       */
 /*    int use_pixmap;		/* true if dbl buffering   */
@@ -160,7 +143,13 @@ typedef struct
 /*    unsigned int prop;		/* other attributes        */
 /*    int has_auto;		/*	*/
 /*    int top;			/*	*/
-#if FL_INCLUDE_VERSION >= 84
+/*    int sort_of_modal;		/* internal use.           */
+#if FL_INCLUDE_VERSION >= 87
+    struct forms_ *parent;
+    struct forms_ *child;
+    struct flobjs_ *parent_obj;
+    int reserved[10];           /* future use              */
+#else
     int reserved[12];           /* future use              */
 #endif
 } FLF_ARRAY;
@@ -173,13 +162,11 @@ typedef struct
 typedef struct
 {
     struct forms_ *form;	/* the form this object belong        */
-#if FL_INCLUDE_VERSION < 84
-    struct flobjs_ *prev;	/* prev. obj in form                  */
-    struct flobjs_ *next;	/* next. obj in form                  */
-#else
     void *u_vdata;		/* anything user likes                */
-    long u_ldata;		/* anything user lines                */
+#if FL_INCLUDE_VERSION >= 87
+	char *u_cdata;
 #endif
+    long u_ldata;		/* anything user lines                */
 
     int flo_int2[3];
 /*    int objclass;		/* class of object, button, slider etc */
@@ -196,7 +183,6 @@ typedef struct
 /*    int lsize, lstyle;		/* label size and style               */
     long *shortcut;
 
-#if FL_INCLUDE_VERSION >= 84
     int (*handle) (struct flobjs_ *, int, FL_Coord, FL_Coord, int, void *);
     void (*object_callback) (struct flobjs_ *, long);
     long argument;
@@ -204,42 +190,30 @@ typedef struct
 
     int (*prehandle) (struct flobjs_ *, int, FL_Coord, FL_Coord, int, void *);
     int (*posthandle) (struct flobjs_ *, int, FL_Coord, FL_Coord, int, void *);
-#else
-    int (*prehandle) (struct flobjs_ *, int, FL_Coord, FL_Coord, int, void *);
-    int (*handle) (struct flobjs_ *, int, FL_Coord, FL_Coord, int, void *);
-    int (*posthandle) (struct flobjs_ *, int, FL_Coord, FL_Coord, int, void *);
-    void (*object_callback) (struct flobjs_ *, long);
-    long argument;
-
-    void *spec;			/* instantiation                      */
-    void *flpixmap;		/* pixmap double buffering stateinfo   */
-    int use_pixmap;		/* true to use pixmap double buffering */
-    int double_buffer;		/* only used by mesa/gl canvas         */
-#endif
 
     /* re-configure preference */
-    int flo_ui[3];
+    unsigned int flo_ui[3];
 /*    unsigned int resize;	/* what to do if WM resizes the FORM     */
 /*    unsigned int nwgravity;	/* how to re-position top-left corner    */
 /*    unsigned int segravity;	/* how to re-position lower-right corner */
 
-#if FL_INCLUDE_VERSION >= 84
-    struct flobjs_ *prev;	/* prev. obj in form                  */
-    struct flobjs_ *next;	/* next. obj in form                  */
+	struct flobjs_ *flo_obj[5];
+/*    struct flobjs_ *prev;	/* prev. obj in form                  */
+/*    struct flobjs_ *next;	/* next. obj in form                  */
 
-    struct flobjs_ *parent;
-    struct flobjs_ *child;
-    struct flobjs_ *nc;
+/*    struct flobjs_ *parent;	*/
+/*    struct flobjs_ *child;	*/
+/*    struct flobjs_ *nc;		*/
+
+
     int is_child;
 
     void *flpixmap;		/* pixmap double buffering stateinfo   */
-    int use_pixmap;		/* true to use pixmap double buffering */
+    int	flo_int[13];
+/*    int use_pixmap;		/* true to use pixmap double buffering */
 
     /* some interaction flags */
-    int double_buffer;		/* only used by mesa/gl canvas         */
-#endif
-
-    int	flo_int[12];
+/*    int double_buffer;		/* only used by mesa/gl canvas         */
 /*    int pushed;*/
 /*    int focus;*/
 /*    int belowmouse;*/
@@ -253,9 +227,17 @@ typedef struct
 /*    int clip;*/
     unsigned long click_timeout;
     void *c_vdata;		/* for class use  */
+#if FL_INCLUDE_VERSION >= 87
+	char *c_cdata;		/* for class use  */
+#endif
     long c_ldata;		/* for class use  */
-
-    int reserved[4];           /* for future use */
+#if FL_INCLUDE_VERSION >= 87
+    unsigned int spec_size;	/* for internal use         */
+    FL_COLOR aux_col1, aux_col2;/* aux colors               */
+    FL_COLOR dbl_background;    /* double buffer background */
+	int how_return;
+#endif
+    int reserved[6];           /* for future use */
 
 } FLO_ARRAY;
 
@@ -285,6 +267,43 @@ typedef struct _fd_array {
 } fd_array;
 
 /*
+ * Pup callback logging blocks
+ */
+typedef struct _pupi_cb {
+	struct _pupi_cb *next;
+	int 	id;
+	SV *	cb;
+} pupi_cb;
+
+typedef struct _pupm_cb {
+	struct _pupm_cb *next;
+	int 	id;
+	SV *	cb;
+	SV *	ecb;
+	SV *	lcb;
+	pupi_cb *items;
+	
+} pupm_cb;
+
+/*
+ * Block for recording xyplot overlay data. Used in co-ordinating
+ * _add_..._overlay and _get_..._overlay functions
+ */
+typedef struct _xyplot_data {
+	int	xy_pt_num;
+	float	*xy_pt_data;
+} xyplot_data;
+
+/*
+ * Block for collecting xyplot overlay data. Used in co-ordinating
+ * _add_..._overlay and _get_..._overlay functions
+ */
+typedef struct _xyplot_hdr {
+	int		xy_ol_num;
+	xyplot_data	*xy_ol_data[1];
+} xyplot_hdr;
+
+/*
  * The object callback data structure
  */
 typedef struct _object_data {
@@ -309,7 +328,11 @@ typedef struct _object_data {
 	SV *	od_mcpact;
 	SV *	od_mcpclean;
 	SV *	od_makehandler;
+	SV *	od_gainsel;
+	SV *	od_losesel;
 	SV **	od_cevents;
+	int		od_max_overlays;
+	SV **	od_xyplot_symbol;
 } object_data;
 
 /*
@@ -321,11 +344,13 @@ typedef struct _od_array {
 	/*
 	 * Basic object callback handlers as an array
 	 */
-	SV *	cb_ptr[13];
+	SV *	cb_ptr[15];
 	SV **	od_cevents;
+	int		od_max_overlays;
+	SV **	od_xyplot_symbol;
 } od_array;
 
-#define OD_CALLBACK		0
+#define OD_CALLBACK			0
 #define OD_BRDBL_CALLBACK	1
 #define OD_POSTHANDLER		2
 #define OD_PREHANDLER		3
@@ -334,10 +359,12 @@ typedef struct _od_array {
 #define OD_SLIDER_FILTER	6
 #define OD_TIMER_FILTER		7
 #define OD_FREEHANDLER		8
-#define OD_MCPINIT		9
-#define OD_MCPACT		10
-#define OD_MCPCLEAN		11
+#define OD_MCPINIT			9
+#define OD_MCPACT			10
+#define OD_MCPCLEAN			11
 #define OD_MAKEHANDLER		12
+#define OD_GAINSEL			13
+#define OD_LOSESEL			14
 
 /*
  * The data structure used to record timeout callback subroutines
@@ -369,6 +396,7 @@ typedef struct _io_data {
 	int			fd;
 	unsigned		condition;
 	SV *			parm;
+    SV *			fh;
 	SV *			callback;
 } io_data;
 
@@ -396,10 +424,10 @@ typedef struct _facb_data {
 /*
  * Macro for read/write access to fields in structures!
  */
-#define ObjRWfld(f)	do { if (rw) \
-				f = field; \
-			RETVAL = f; \
-			} while(0)
+#define ObjRWfld(f)	do {RETVAL = f; \
+ 						if (rw) \
+							f = field; \
+						} while(0)
 /*
  * Some call back handlers referenced before defined
  */
@@ -463,4 +491,6 @@ static void 	return_save_sv(SV **stack, SV **old_cb, SV *new_cb);
 static void	sv_setpv_c(SV* sv, const char* ptr);
 static void	call_perl_callback(SV *callback, char * cbname, int outexpct, 
 			void *outvar, char *parmptrn, ...);
+static void	usage(char *function);
+static int	SvNULL(SV *sv);
 #endif

@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+use X11::Xforms;
 #
 # Example (and test) of the use of Xforms from PERL!!
 #
@@ -53,7 +54,6 @@ $which = "which";
 use X11::Xforms;
 
 $BUTTONSIZE=38;
-$BUTTONBORDER=2;
 $PIXEDITOR="xpaint -size '30x30' ";
 $executor="Exec:Execute a program:$ENV{'X11HOME'}/include/X11/pixmaps/XFexec.xpm:1";
 $controler="Cntl:Configure the Toolbar:$ENV{'X11HOME'}/include/X11/pixmaps/XFcntl.xpm:2";
@@ -84,7 +84,6 @@ chop(@toolbar);
 fl_initialize('Toolbar');
 $scrw = fl_scrw();
 $toolform = "FIRST";
-fl_set_border_width($BUTTONBORDER);
 build_toolbar();
 fl_do_forms();
 

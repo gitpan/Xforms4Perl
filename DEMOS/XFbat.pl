@@ -11,7 +11,6 @@ $last_stat = 0;
 use X11::Xforms;
 
    fl_initialize("Battery");
-   fl_set_defaults(FL_PDBorderWidth, -2);
 
    create_form_XFbat();
 

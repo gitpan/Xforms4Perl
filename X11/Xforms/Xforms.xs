@@ -3,8 +3,7 @@
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
+#    the Free Software Foundation;
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,7 +14,6 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -27,26 +25,31 @@
  */
 
 static char *object_name[] = {
-	"X11::Xforms",
-        "X11::Xforms::FLForm",
-        "X11::Xforms::FLObject",
-        "X11::Xforms::FLOpt",
-        "X11::Xforms::FDCmdlog",
-        "X11::Xforms::FDFselector",
-        "X11::Xforms::FLEditKeymap",
-        "X11::XEvent",
-        "X11::XFontStruct"
+		"X11::Xforms",
+		"X11::Xforms::FLForm",
+		"X11::Xforms::FLObject",
+		"X11::Xforms::FLOpt",
+		"X11::Xforms::FDCmdlog",
+		"X11::Xforms::FDFselector",
+		"X11::Xforms::FLEditKeymap",
+		"X11::XEvent",
+		"X11::XFontStruct"
 };
 
-#define X11Xforms			0
+#define X11Xforms				0
 #define X11XformsFLForm			1
 #define X11XformsFLObject		2
 #define X11XformsFLOpt			3
 #define X11XformsFDCmdlog		4
-#define X11XformsFDFselector		5
-#define X11XformsFLEditKeymap		6
-#define X11XEvent			7
+#define X11XformsFDFselector	5
+#define X11XformsFLEditKeymap	6
+#define X11XEvent				7
 #define X11XFontStruct			8
+
+#if FL_INCLUDE_VERSION >= 87
+#define leftScrollBar	scrollbarType
+#define thinScrollBar	scrollbarType
+#endif
 
 /*
  *  Function arrays, making ALIAS a highly efficient way of calling
@@ -59,84 +62,145 @@ static char *object_name[] = {
  * the protocol here (only xforms does). 
  */
 
-typedef FL_OBJECT * (*CrtAddFunc)(int,FL_Coord,FL_Coord,
-				     FL_Coord,FL_Coord,const char *);
+typedef struct {
+	FL_OBJECT * (*func)(int,FL_Coord,FL_Coord,
+		FL_Coord,FL_Coord,const char *);
+	SV *init_cb;
+} CrtAddFunc;
 
 static CrtAddFunc	create_add_funcs[] = {
 
-		fl_create_button,
-		fl_add_button,
-		fl_create_lightbutton,
-		fl_add_lightbutton,
-		fl_create_roundbutton,
-		fl_add_roundbutton,
-		fl_create_checkbutton,
-		fl_add_checkbutton,
-		fl_create_bitmapbutton,
-		fl_add_bitmapbutton,
-		fl_create_pixmapbutton,
-		fl_add_pixmapbutton,
-		fl_create_bitmap,
-		fl_add_bitmap,
-		fl_create_pixmap,
-		fl_add_pixmap,
-		fl_create_box,
-		fl_add_box,
-		fl_create_text,
-		fl_add_text,
-		fl_create_menu,
-		fl_add_menu,
-		fl_create_chart,
-		fl_add_chart,
-		fl_create_choice,
-		fl_add_choice,
-		fl_create_counter,
-		fl_add_counter,
-		fl_create_slider,
-		fl_add_slider,
-		fl_create_valslider,
-		fl_add_valslider,
-		fl_create_input,
-		fl_add_input,
-		fl_create_browser,
-		fl_add_browser,
-		fl_create_dial,
-		fl_add_dial,
-		fl_create_timer,
-		fl_add_timer,
-		fl_create_clock,
-		fl_add_clock,
-		fl_create_positioner,
-		fl_add_positioner,
-		fl_create_xyplot,
-		fl_add_xyplot,
-		fl_create_canvas,
-		fl_add_canvas,
-		fl_create_frame,
-		fl_add_frame,
-#if FL_INCLUDE_VERSION >= 84
-		fl_create_round3dbutton,
-		fl_add_round3dbutton,
-		fl_create_textbox,
-		fl_add_textbox,
-#if FL_INCLUDE_VERSION >= 85
-		fl_create_labelframe,
-		fl_add_labelframe,
-#else
-		NULL,
-		NULL,
-#endif
-#else
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-#endif
 #ifdef XFOPENGL
-		fl_create_glcanvas,
-		fl_add_glcanvas
+		{fl_create_glcanvas, NULL},
+		{fl_add_glcanvas, NULL},
+#else
+		{NULL, NULL},
+		{NULL, NULL},
+#endif
+		{fl_create_button, NULL},
+		{fl_add_button, NULL},
+		{fl_create_lightbutton, NULL},
+		{fl_add_lightbutton, NULL},
+		{fl_create_roundbutton, NULL},
+		{fl_add_roundbutton, NULL},
+		{fl_create_checkbutton, NULL},
+		{fl_add_checkbutton, NULL},
+		{fl_create_bitmapbutton, NULL},
+		{fl_add_bitmapbutton, NULL},
+		{fl_create_pixmapbutton, NULL},
+		{fl_add_pixmapbutton, NULL},
+		{fl_create_bitmap, NULL},
+		{fl_add_bitmap, NULL},
+		{fl_create_pixmap, NULL},
+		{fl_add_pixmap, NULL},
+		{fl_create_box, NULL},
+		{fl_add_box, NULL},
+		{fl_create_text, NULL},
+		{fl_add_text, NULL},
+		{fl_create_menu, NULL},
+		{fl_add_menu, NULL},
+		{fl_create_chart, NULL},
+		{fl_add_chart, NULL},
+		{fl_create_choice, NULL},
+		{fl_add_choice, NULL},
+		{fl_create_counter, NULL},
+		{fl_add_counter, NULL},
+		{fl_create_slider, NULL},
+		{fl_add_slider, NULL},
+		{fl_create_valslider, NULL},
+		{fl_add_valslider, NULL},
+		{fl_create_input, NULL},
+		{fl_add_input, NULL},
+		{fl_create_browser, NULL},
+		{fl_add_browser, NULL},
+		{fl_create_dial, NULL},
+		{fl_add_dial, NULL},
+		{fl_create_timer, NULL},
+		{fl_add_timer, NULL},
+		{fl_create_clock, NULL},
+		{fl_add_clock, NULL},
+		{fl_create_positioner, NULL},
+		{fl_add_positioner, NULL},
+		{fl_create_xyplot, NULL},
+		{fl_add_xyplot, NULL},
+		{fl_create_canvas, NULL},
+		{fl_add_canvas, NULL},
+		{fl_create_frame, NULL},
+		{fl_add_frame, NULL},
+		{fl_create_round3dbutton, NULL},
+		{fl_add_round3dbutton, NULL},
+		{fl_create_labelframe, NULL},
+		{fl_add_labelframe, NULL},
+#if FL_INCLUDE_VERSION >= 87
+/*
+ ************** Menubar has been removed at 0.87.3
+		{fl_create_menubar, NULL},
+		{fl_add_menubar, NULL},
+ */
+		{NULL, NULL},
+		{NULL, NULL},
+/*
+ *************************************************
+ */
+		{fl_create_tabfolder, NULL},
+		{fl_add_tabfolder, NULL},
+		{fl_create_scrollbutton, NULL},
+		{fl_add_scrollbutton, NULL},
+		{fl_create_scrollbar, NULL},
+		{fl_add_scrollbar, NULL},
 #endif
 };
+
+typedef struct {
+	int fl_number;
+	int ix_number;
+} fl2ix;
+
+static	fl2ix	fl_2_ix[] = {
+	{FL_INVALID_CLASS,	-1},
+    {FL_BUTTON, 		2},
+	{FL_LIGHTBUTTON, 	4},
+    {FL_ROUNDBUTTON, 	6},
+	{FL_ROUND3DBUTTON, 	52},
+    {FL_CHECKBUTTON, 	8},
+    {FL_BITMAPBUTTON, 	10},
+	{FL_PIXMAPBUTTON, 	12},
+    {FL_BITMAP, 		14},
+	{FL_PIXMAP, 		16},
+    {FL_BOX, 			18},
+	{FL_TEXT, 			20},
+    {FL_MENU, 			22},
+	{FL_CHART, 			24},
+	{FL_CHOICE, 		26},
+    {FL_COUNTER, 		28},
+	{FL_SLIDER, 		30},
+	{FL_VALSLIDER, 		32},
+	{FL_INPUT, 			34},
+    {FL_BROWSER, 		36},
+    {FL_DIAL, 			38},
+    {FL_TIMER, 			40},
+    {FL_CLOCK, 			42},
+    {FL_POSITIONER, 	44},
+    {FL_FREE, 			-1},
+    {FL_XYPLOT, 		46},
+    {FL_FRAME, 			50},
+    {FL_LABELFRAME, 	54},
+    {FL_CANVAS, 		48},
+    {FL_GLCANVAS, 		0},
+#if FL_INCLUDE_VERSION >= 87
+    {FL_TABFOLDER, 		58},
+    {FL_SCROLLBAR, 		62},
+    {FL_SCROLLBUTTON, 	60},
+    {FL_MENUBAR, 		56},
+#endif
+	{FL_IMAGECANVAS,	-1},
+#if FL_INCLUDE_VERSION < 87
+	{FL_FOLDER,			-1},
+#endif
+    {FL_TEXTBOX,		-1}
+};
+
+#define FL_MAX_CLASS FL_TEXTBOX
 
 #ifdef XFOPENGL
 static	int	XFOpenGL = 1;
@@ -149,7 +213,11 @@ typedef const char * (*CcharVoidFunc)(void);
 static CcharVoidFunc     cchar_void_funcs[] = {
 		fl_get_directory,
 		fl_get_filename,
-		fl_get_pattern
+		fl_get_pattern,
+#if FL_INCLUDE_VERSION >= 87
+		fl_now,
+		fl_whoami
+#endif
 };
 
 typedef FL_OBJECT * (*FloVoidFunc)(void);
@@ -177,11 +245,14 @@ static IntFloFunc	int_FLO_funcs[] = {
 		fl_get_choice_maxitems,
 		fl_get_menu,
 		fl_get_menu_maxitems,
-#if FL_INCLUDE_VERSION >= 84
 		fl_get_input_topline,
 		fl_get_input_screenlines,
 		fl_get_input_numberoflines,
-		fl_get_textbox_longestline
+#if FL_INCLUDE_VERSION >= 87
+		fl_get_folder_number,
+		fl_get_active_folder_number,
+		fl_get_menu_popup,
+		fl_get_input_xoffset
 #endif
 };
 
@@ -219,6 +290,17 @@ static VoidFLFiiFunc	void_FLF_ii_funcs[] = {
 		fl_set_form_size
 };
 
+typedef const char *(*CharFLOFunc)(FL_OBJECT *);
+
+static CharFLOFunc	char_FLO_funcs[] = {
+		fl_get_choice_text,
+		fl_get_menu_text,
+#if FL_INCLUDE_VERSION >= 87
+		fl_get_folder_name,
+		fl_get_active_folder_name
+#endif
+};
+
 typedef const char *(*CharFLOIntFunc)(FL_OBJECT *, int);
 
 static CharFLOIntFunc	char_FLO_int_funcs[] = {
@@ -240,7 +322,10 @@ typedef void (*VoidFLOiiiiFunc)(FL_OBJECT *, FL_Coord *, FL_Coord *, FL_Coord *,
 static VoidFLOiiiiFunc	void_FLO_iiii_funcs[] = {
 		fl_get_object_geometry,
 		fl_get_browser_dimension,
-		fl_compute_object_geometry
+		fl_get_object_bbox,
+#if FL_INCLUDE_VERSION >= 87
+		fl_get_folder_area
+#endif
 };
 
 typedef void (*VoidXXXXFunc)(FL_Coord, FL_Coord, FL_Coord,FL_Coord);
@@ -272,15 +357,20 @@ static VoidFLOFunc	void_FLO_funcs[] = {
 		fl_clear_choice,
 		fl_clear_menu,
 		fl_clear_chart,
-#if FL_INCLUDE_VERSION >= 84
 		fl_reset_focus_object,
-		fl_clear_textbox,
 		fl_suspend_timer,
 		fl_resume_timer,
 		fl_clear_xyplot,
-#endif
-#if FL_INCLUDE_VERSION >= 85
-		fl_draw_object_label_outside
+		fl_draw_object_label_outside,
+#if FL_INCLUDE_VERSION >= 87
+/*
+ ************** Menubar has been removed at 0.87.3
+		fl_clear_menubar			menubar not in yet
+ */
+		NULL
+/*
+ **************
+ */
 #endif
 };
 
@@ -292,7 +382,7 @@ static VoidWinFLXFLXFunc     void_win_FLX_FLX_funcs[] = {
 		fl_winminsize,
 		fl_winmove,
 		fl_winresize,
-		fl_winstepunit
+		fl_winstepunit,
 };
 
 typedef void (*VoidFLOFLXFLXFunc)(FL_OBJECT *, FL_Coord, FL_Coord);
@@ -320,7 +410,10 @@ static VoidWinFunc     void_win_funcs[] = {
 		fl_winclose,
 		fl_winhide,
 		fl_winset,
-		fl_activate_event_callbacks
+		fl_activate_event_callbacks,
+#if FL_INCLUDE_VERSION >= 87
+		fl_winfocus
+#endif
 };
 
 typedef void (*FltFltFLOFunc)(FL_OBJECT *, float *, float *);
@@ -329,7 +422,13 @@ static FltFltFLOFunc	flt_flt_FLO_funcs[] = {
 		fl_get_xyplot_xbounds,
 		fl_get_xyplot_xmapping,
 		fl_get_xyplot_ybounds,
-		fl_get_xyplot_ymapping
+		fl_get_xyplot_ymapping,
+#if FL_INCLUDE_VERSION >= 87
+		fl_get_counter_step,
+		fl_get_scrollbar_increment,
+		fl_get_scrollbar_bounds,
+		fl_get_slider_increment
+#endif
 };
 
 typedef void (*DblDblFLOFunc)(FL_OBJECT *, double *, double *);
@@ -339,9 +438,7 @@ static DblDblFLOFunc	dbl_dbl_FLO_funcs[] = {
 		fl_get_positioner_xbounds,
 		fl_get_positioner_ybounds,
 		fl_get_slider_bounds,
-#if FL_INCLUDE_VERSION >= 86
 		fl_get_counter_bounds
-#endif 
 };
 
 typedef double (*DblFLOFunc)(FL_OBJECT *);
@@ -352,7 +449,10 @@ static DblFLOFunc	dbl_FLO_funcs[] = {
 		fl_get_dial_value,
 		fl_get_positioner_xvalue,
 		fl_get_positioner_yvalue,
-		fl_get_slider_value
+		fl_get_slider_value,
+#if FL_INCLUDE_VERSION >= 87
+		fl_get_scrollbar_value
+#endif
 };
 
 typedef void (*VoidFLODblFunc)(FL_OBJECT *, double);
@@ -368,7 +468,12 @@ static VoidFLODblFunc	void_FLO_dbl_funcs[] = {
 		fl_set_positioner_yvalue,
 		fl_set_slider_size,
 		fl_set_slider_step,
-		fl_set_slider_value
+		fl_set_slider_value,
+#if FL_INCLUDE_VERSION >= 87
+		fl_set_scrollbar_value,
+		fl_set_scrollbar_size,
+		fl_set_scrollbar_step,
+#endif
 };
 
 typedef void (*VoidFLODblDblFunc)(FL_OBJECT *, double, double);
@@ -385,8 +490,10 @@ static VoidFLODblDblFunc	void_FLO_dbl_dbl_funcs[] = {
 		fl_set_chart_bounds,
 		fl_set_xyplot_xbounds,
 		fl_set_xyplot_ybounds,
-#if FL_INCLUDE_VERSION >= 85
-		fl_set_slider_increment
+		fl_set_slider_increment,
+#if FL_INCLUDE_VERSION >= 87
+		fl_set_scrollbar_increment,
+		fl_set_scrollbar_bounds
 #endif
 };
 
@@ -398,7 +505,10 @@ static VoidFLOIntCharFunc	void_FLO_int_char_funcs[] = {
 		fl_replace_choice,
 		fl_replace_menu_item,
 		fl_set_choice_item_shortcut,
-		fl_set_menu_item_shortcut
+		fl_set_menu_item_shortcut,
+#if FL_INCLUDE_VERSION >= 87
+		fl_set_xyplot_key
+#endif
 };
 
 typedef void (*VoidFLOCharFunc)(FL_OBJECT *, const char *);
@@ -411,24 +521,31 @@ static VoidFLOCharFunc	void_FLO_char_funcs[] = {
 		fl_set_input,
 		fl_set_object_label,
 		fl_set_pixmap_file,
-		fl_addto_choice,
-		fl_addto_menu,
 		fl_set_choice_text,
 		fl_set_menu,
 		fl_delete_xyplot_text,
-#if FL_INCLUDE_VERSION >= 84
-		fl_addto_browser_chars
+		fl_addto_browser_chars,
+#if FL_INCLUDE_VERSION >= 87
+/*
+ ************** Menubar has been removed at 0.87.3
+		fl_set_menubar,
+ */
+		NULL,
+/*
+ **************
+ */
+		fl_delete_folder_byname,
+		fl_set_folder_byname,
 #endif
 };
 
 typedef void (*VoidFLOCharCharFunc)(FL_OBJECT *, const char *, const char *);
 
 static VoidFLOCharCharFunc	void_FLO_char_char_funcs[] = {
-#if FL_INCLUDE_VERSION >= 84
+		fl_set_xyplot_alphaxtics,
 		fl_set_xyplot_alphaytics,
 		fl_set_xyplot_fixed_xaxis,
 		fl_set_xyplot_fixed_yaxis,
-#endif
 		NULL
 };
 
@@ -440,7 +557,7 @@ static VoidFLOIntFunc	void_FLO_int_funcs[] = {
 		fl_select_browser_line,
 		fl_set_browser_fontsize,
 		fl_set_browser_fontstyle,
-		fl_set_browser_leftslider,
+		NULL,                   /* was fl_set_browser_leftslider  */
 		fl_set_browser_specialkey,
 		fl_set_browser_topline,
 		fl_set_browser_vscrollbar,
@@ -457,7 +574,7 @@ static VoidFLOIntFunc	void_FLO_int_funcs[] = {
 		fl_set_object_lsize,
 		fl_set_object_lstyle,
 		fl_set_object_return,
-		fl_set_canvas_decoration,
+		NULL,                 /* was fl_set_canvas_decoration */
 		fl_set_canvas_depth,
 		fl_canvas_yield_to_shortcut,
 		fl_delete_choice,
@@ -485,26 +602,24 @@ static VoidFLOIntFunc	void_FLO_int_funcs[] = {
 		fl_set_xyplot_inspect,
 		fl_set_xyplot_return,
 		fl_set_xyplot_symbolsize,
-#if FL_INCLUDE_VERSION >= 84
 		fl_set_chart_lstyle,
 		fl_set_chart_lsize,
-#if FL_INCLUDE_VERSION >= 85
 		fl_set_dial_direction,
-#else
-		NULL,
-#endif
 		fl_set_input_hscrollbar,
 		fl_set_input_vscrollbar,
 		fl_set_input_xoffset,
 		fl_set_input_topline,
-		fl_set_textbox_topline,
 		fl_set_timer_countup,
 		fl_set_xyplot_xgrid,
 		fl_set_xyplot_ygrid,
 		fl_set_browser_hscrollbar,
-#endif
-#if FL_INCLUDE_VERSION >= 86
-		fl_set_pixmapbutton_focus_outline
+		fl_set_pixmapbutton_focus_outline,
+#if FL_INCLUDE_VERSION >= 87
+		fl_delete_folder_bynumber,
+		fl_set_folder_bynumber,
+		fl_set_scrollbar_return,
+		fl_set_clock_ampm,
+		fl_show_browser_line
 #endif
 };
 
@@ -521,11 +636,12 @@ static VoidFLOIntIntFunc	void_FLO_int_int_funcs[] = {
 		fl_set_xyplot_overlay_type,
 		fl_set_xyplot_xtics,
 		fl_set_xyplot_ytics,
-#if FL_INCLUDE_VERSION >= 84
 		fl_set_input_format,
 		fl_set_input_scrollbarsize,
 		fl_set_xyplot_linewidth,
-		fl_set_browser_scrollbarsize
+		fl_set_browser_scrollbarsize,
+#if FL_INCLUDE_VERSION >= 87
+		fl_set_xyplot_key_font
 #endif
 };
 
@@ -535,11 +651,12 @@ static IntVoidFunc	int_void_funcs[] = {
 		fl_get_border_width,
 		fl_get_coordunit,
 		fl_get_visual_depth,
-#if FL_INCLUDE_VERSION >= 84
 		fl_get_linewidth,
 		fl_get_linestyle,
 		fl_get_drawmode,
-		fl_end_all_command
+		fl_end_all_command,
+#if FL_INCLUDE_VERSION >= 87
+		fl_current_pup
 #endif
 };
 
@@ -551,9 +668,11 @@ static IntIntFunc	int_int_funcs[] = {
 		fl_dopup,
 		fl_setpup_maxpup,
 		fl_show_colormap,
-#if FL_INCLUDE_VERSION >= 84
 		fl_setpup_fontsize,
-		fl_setpup_fontstyle
+		fl_setpup_fontstyle,
+#if FL_INCLUDE_VERSION >= 87
+		fl_getpup_items,
+		fl_setpup_default_bw
 #endif
 };
 
@@ -585,14 +704,13 @@ static VoidIntFunc	void_int_funcs[] = {
 		fl_drawmode,
 		fl_linestyle,
 		fl_linewidth,
-#if FL_INCLUDE_VERSION >= 84
 		fl_ringbell,
 		fl_show_command_log,
 		fl_set_fselector_fontsize,
 		fl_set_fselector_fontstyle,
-#endif
-#if FL_INCLUDE_VERSION >= 85
-		fl_set_dirlist_sort
+		fl_set_dirlist_sort,
+#if FL_INCLUDE_VERSION >= 88
+		fl_set_scrollbar_type
 #endif
 };
 
@@ -609,9 +727,7 @@ static VoidIntIntFunc	void_int_int_funcs[] = {
 		fl_setpup_softedge,
 		fl_set_goodies_font,
 		fl_set_oneliner_font,
-#if FL_INCLUDE_VERSION >= 84
 		fl_set_command_log_position
-#endif
 };
 
 typedef void (*VoidIIIFunc)(int, int, int);
@@ -642,9 +758,14 @@ static VoidVoidFunc	void_void_funcs[] = {
 		fl_endclosedline,
 		fl_endpolygon,
 		fl_hide_fselector,
-#if FL_INCLUDE_VERSION >= 84
 		fl_hide_command_log,
-		fl_clear_command_log
+		fl_clear_command_log,
+#if FL_INCLUDE_VERSION >= 87
+		fl_hide_message,
+		fl_hide_question,
+		fl_hide_alert,
+		fl_hide_input,
+		fl_hide_choice,
 #endif
 };
 
@@ -686,9 +807,7 @@ static cbFLOcbFunc      cb_FLO_cb_funcs[] = {
 		(cbFLOcbFunc)fl_set_input_filter, 
 		(cbFLOcbFunc)fl_set_counter_filter,
 		(cbFLOcbFunc)fl_set_slider_filter,
-#if FL_INCLUDE_VERSION >= 84
 		(cbFLOcbFunc)fl_set_timer_filter
-#endif
 };
 void *cb_FLO_cb_handlers[] = {
 		(void *)process_object_posthandler,
@@ -696,9 +815,7 @@ void *cb_FLO_cb_handlers[] = {
 		(void *)process_input_filter,
 		(void *)process_counter_filter,
 		(void *)process_slider_filter,
-#if FL_INCLUDE_VERSION >= 84
 		(void *)process_timer_filter
-#endif
 };
 
 typedef void (*cbFLFcbParmFunc)(FLForm *, SV *, SV *);
@@ -810,6 +927,242 @@ get_cb_data()
 	return ecb_data;
 }
 
+#if FL_INCLUDE_VERSION >= 87
+
+/*
+ * fl_set_error_handler callback and fl_set_error_logfp
+ */
+static SV   *error_handler = NULL;
+static FILE *error_log     = NULL;
+
+/*
+ * XYPlot symbol drawers are post 0.86
+ */
+
+SV **alloc_overlay_data(FLObject *object, int overlay)
+{
+	object_data *od = get_object_data(object);
+	int i;
+	SV ** ol_data;
+	int max_ol, min_ol = 
+		(overlay < od->od_max_overlays ? overlay : od->od_max_overlays);
+		
+	if (od->od_max_overlays == 0)
+		max_ol = 
+			(overlay > FL_MAX_XYPLOTOVERLAY ? overlay : FL_MAX_XYPLOTOVERLAY);
+	else
+		max_ol = 
+			(od->od_max_overlays > overlay ? od->od_max_overlays : overlay);
+
+	if (od->od_max_overlays != max_ol || od->od_xyplot_symbol == NULL)
+	{
+		fl_set_xyplot_maxoverlays(object, max_ol);
+
+		ol_data = (SV **)calloc(max_ol, sizeof(SV *));
+		if (ol_data == NULL)
+			croak("XYplot overlay data allocation error");
+		if (od->od_xyplot_symbol != NULL)
+		{
+			for (i = 0; i < min_ol; ++i)
+				ol_data[i] = od->od_xyplot_symbol[i];
+			for (; i < od->od_max_overlays; ++i)
+				fl_set_xyplot_symbol(object, i, NULL);
+			free(od->od_xyplot_symbol);
+		}
+		od->od_xyplot_symbol = ol_data;
+		od->od_max_overlays = max_ol;
+	}
+	return 	od->od_xyplot_symbol;
+}
+
+/*
+ * PUP callbacks are only supported post 0.86
+ */
+
+/*
+ * Pup callback anchor
+ */
+static int		dummy_pup   = -1;
+static int		pup_count   = 0;
+static pupm_cb	*pup_anchor = NULL;
+
+/*
+ * Routines to manage pup callback chain
+ */
+static pupm_cb *
+get_pup_menu(int id, pupm_cb **prev) 
+{
+    /*
+     * Keep track of previous pupm_cb we looked at so we can
+     * manage the chain correctly
+     */
+	pupm_cb 	*pupm = pup_anchor, *pupm_prev = (pupm_cb *)&pup_anchor;
+	while(pupm && pupm->id != id)
+	{
+		pupm_prev = pupm;
+		pupm = pupm->next;
+	}
+	if (prev != NULL)
+		*prev = pupm_prev;
+	return pupm;
+}
+
+/*
+ * Change the the pup menu id from the first par to the second
+ */
+void
+change_pupm_id(int old_id, int new_id)
+{
+	pupm_cb *pupm = get_pup_menu(old_id, NULL);
+	if (pupm != NULL)
+		pupm->id = new_id;
+}
+
+static pupm_cb *
+get_current_pup(void)
+{
+	pupm_cb		*pupm;
+	if ((pupm = get_pup_menu(fl_current_pup(), NULL)) == NULL)
+		croak("Pup menu callback: no active callback ");
+	return pupm;
+}
+
+static pupm_cb *
+add_pup_menu(int id) 
+{
+	pupm_cb 	*pupm = get_pup_menu(id, NULL);
+	if (pupm == NULL) 
+	{
+		pupm = calloc(1, sizeof(pupm_cb));
+		pupm->next = pup_anchor;
+		pup_anchor = pupm;
+		pupm->id = id;
+	}
+	return pupm;
+}
+
+void
+del_pup_menu(int id) 
+{
+	pupm_cb 	*pupm, *pupm_prev;
+	pupi_cb 	*pupi, *pupd;
+
+	pupm = get_pup_menu(id, &pupm_prev);
+	if (pupm != NULL) 
+	{
+		pupi = pupm->items;
+		while (pupd = pupi) 
+		{
+			pupi = pupi->next;
+			free((void *)pupd);
+		}
+		pupm_prev->next = pupm->next;
+		free((void *)pupm);	
+	}
+}
+
+static pupi_cb *
+get_pup_item(int mid, int iid) 
+{
+	pupm_cb 	*pupm = pup_anchor;
+	pupi_cb		*pupi = NULL;
+
+	if ((pupm = get_pup_menu(mid, NULL)) != NULL)
+	{
+		pupi = pupm->items;
+		while(pupi && pupi->id != iid)
+			pupi = pupi->next;
+	}
+	return pupi;
+}
+
+static pupi_cb *
+add_pup_item(int mid, int iid) 
+{
+	pupm_cb 	*pupm = get_pup_menu(mid, NULL);
+	pupi_cb 	*pupi;
+	if (pupm == NULL) 
+	{
+		pupm = add_pup_menu(mid);
+		pupm->cb = NULL;
+		pupm->ecb = NULL;
+		pupm->lcb = NULL;
+	}
+
+	if ((pupi = get_pup_item(mid, iid)) == NULL) 
+	{
+		pupi = calloc(1, sizeof(pupi_cb));
+		pupi->next = pupm->items;
+		pupm->items = pupi;
+		pupi->id = iid;
+	}
+	return pupi;
+}
+
+static int
+process_pupm_callback(int ite_rc)
+{
+	int		retint;
+
+	/*
+	 * Generic PUP menu callback
+	 */
+	call_perl_callback(get_current_pup()->cb, 
+			"Pup menu",
+			CB_RET_INT, (void *)&retint,
+			"i",
+			ite_rc);
+	return retint;
+}
+	
+static void
+process_pupm_entercb(int item, void *parm)
+{
+	/*
+	 * Generic PUP menu enter callback
+	 */
+	call_perl_callback(get_current_pup()->ecb, 
+			"Pup enter menu",
+			CB_FALSE, NULL,
+			"iS",
+			item, parm);
+}
+	
+static void
+process_pupm_leavecb(int item, void *parm)
+{
+	/*
+	 * Generic PUP menu leave callback
+	 */
+	call_perl_callback(get_current_pup()->lcb, 
+			"Pup leave menu",
+			CB_FALSE, NULL,
+			"iS",
+			item, parm);
+}
+	
+static int
+process_pupi_callback(int item)
+{
+	pupi_cb 	*pupi;
+	int			retint;
+	/*
+   	 * If current pupm is -1, we have a problem
+	 */
+
+	if ((pupi = get_pup_item(fl_current_pup(), item)) == NULL)
+		croak("Pup item callback: no active callback ");
+
+	call_perl_callback(pupi->cb, 
+			"Pup item",
+			CB_RET_INT, (void *)&retint,
+			"i",
+			item);
+	return retint;
+}
+
+#endif
+	
 /*
  * fselector callback mechanisms
  */
@@ -823,8 +1176,7 @@ static facb_data **      fcb_anchor = NULL;
 static facb_data **      get_facb_data(int fsel){
 
 	if (!fcb_anchor)
-		fcb_anchor = (facb_data **)calloc(FL_MAX_FSELECTOR+1,
-						 sizeof(facb_data));
+		fcb_anchor = (facb_data**)calloc(FL_MAX_FSELECTOR+1,sizeof(facb_data));
 	if (!fcb_anchor)
 		croak("Allocation error - fselector callback array");
 	return &fcb_anchor[fsel];
@@ -888,13 +1240,13 @@ void *          parm;
 				  CB_RET_INT, (void *)&retint,
 				  "eS",
 				  event,parm);
-        return retint;
+		return retint;
 }
 
 static void
 process_signal_callback(sgnl,parm)
-int	        sgnl;
-void *          parm;
+int		sgnl;
+void 	*parm;
 {
 
 	/*
@@ -923,7 +1275,7 @@ void *		xevent;
 		CB_RET_INT, (void *)&retint, 
 		"Fe", 
 		form, xevent);
-        return retint;
+		return retint;
 }    
 
 static int
@@ -941,7 +1293,7 @@ void *		parm;
 		CB_RET_INT, (void *)&retint, 
 		"FS", 
 		form, parm);
-        return retint;
+		return retint;
 }    
 
 static int
@@ -960,7 +1312,7 @@ void *		parm;
 		CB_RET_INT, (void *)&retint, 
 		"FS", 
 		form, parm);
-        return retint;
+		return retint;
 }    
 
 static void
@@ -984,7 +1336,7 @@ process_input_filter(object, parm1, parm2, parm3)
 FLObject * 	object;
 const char *	parm1;
 const char *	parm2;
-int		parm3;
+int				parm3;
 {
 
 	/*
@@ -998,7 +1350,7 @@ int		parm3;
 		CB_RET_INT, (void *)&retint, 
 		"Ossi", 
 		object, parm1, parm2, parm3);
-        return retint;
+		return retint;
 }    
 
 static char *
@@ -1017,8 +1369,54 @@ double		parm1;
 		CB_RET_STR, (void *)&retstr, 
 		"Od", 
 		object, parm1);
-        return retstr;
+		return retstr;
 }    
+
+#if FL_INCLUDE_VERSION >= 87
+
+void
+process_xyplot_symbol(object, ol, points, pts, wd, ht)
+FLObject * 	object;
+int		ol;
+FL_POINT *	points;
+int		pts;
+int		wd;
+int		ht;
+{
+	/*
+	 * Generic xyplot point drawing process
+	 */
+
+	call_perl_callback(((get_object_data(object))->od_xyplot_symbol)[ol], 
+		"XYplot symbol",
+		CB_FALSE, NULL, 
+		"OiiinP", 
+		object, ol, wd, ht, pts, points);
+
+}    
+
+void
+process_error_handler(const char *where, const char *format, ...)
+{
+	/*
+	 * Generic error handler
+	 */
+
+	char fmtd_str[1024];
+    va_list arg_ptr;
+
+	va_start(arg_ptr, format);
+    vsnprintf(fmtd_str, 1024, format, arg_ptr);
+    va_endt(arg_ptr);
+
+	call_perl_callback(error_handler, 
+		"Error handler",
+		CB_FALSE, NULL, 
+		"ss", 
+		where, fmtd_str);
+
+}    
+#endif
 
 static void
 process_brdbl_callback(object, parm)
@@ -1032,7 +1430,7 @@ long		parm;
 	call_perl_callback((get_object_data(object))->od_brdbl_callback, 
 		"Browser double-click",
 		CB_FALSE, NULL, 
-		"Op", 
+		"Ol", 
 		object, parm);
 }    
 
@@ -1086,10 +1484,10 @@ void *		parm;
 static int
 process_make_handle(object,event,x,y,int4,xevent)
 FLObject * 	object;
-int		event;
+int			event;
 FL_Coord	x;
 FL_Coord	y;
-int		int4;
+int			int4;
 void *		xevent;
 {
 	/*
@@ -1103,17 +1501,17 @@ void *		xevent;
 		CB_RET_INT, (void *)&retint, 
 		"Oiiiie", 
 		object,event,x,y,int4, xevent);
-        return retint;
+		return retint;
 }    
 
 static int
 process_free_handle(object,event,x,y,int4,xevent)
-FLObject *      object;
-int		event;
+FLObject *  object;
+int			event;
 FL_Coord	x;
 FL_Coord	y;
-int		int4;
-void *          xevent;
+int			int4;
+void *		xevent;
 {
 	/*
 	 * Generic free object handler
@@ -1126,16 +1524,16 @@ void *          xevent;
 		CB_RET_INT, (void *)&retint,
 		"Oiiiie",
 		object,event,x,y,int4, xevent);
-        return retint;
+		return retint;
 }
 
 static int
 process_object_prehandler(object,event,x,y,int4,xevent)
 FLObject * 	object;
-int		event;
+int			event;
 FL_Coord	x;
 FL_Coord	y;
-int		int4;
+int			int4;
 void *		xevent;
 {
 	/*
@@ -1149,16 +1547,16 @@ void *		xevent;
 		CB_RET_INT, (void *)&retint, 
 		"Oiiiie", 
 		object,event,x,y,int4, xevent);
-        return retint;
+		return retint;
 }    
 
 static int
 process_object_posthandler(object,event,x,y,int4,xevent)
 FLObject * 	object;
-int		event;
+int			event;
 FL_Coord	x;
 FL_Coord	y;
-int		int4;
+int			int4;
 void *		xevent;
 {
 	/*
@@ -1172,7 +1570,7 @@ void *		xevent;
 		CB_RET_INT, (void *)&retint, 
 		"Oiiiie", 
 		object,event,x,y,int4, xevent);
-        return retint;
+		return retint;
 }    
 
 static void
@@ -1213,8 +1611,8 @@ void *		parm;
 
 	call_perl_callback(((io_data *)parm)->callback, "IO event",
 			  CB_FALSE, NULL, 
-			   "iS", 
-			   fd,((io_data *)parm)->parm);
+			   "SS", 
+			   ((io_data *)parm)->fh,((io_data *)parm)->parm);
 }    
 
 static int
@@ -1231,7 +1629,7 @@ void *          parm;
 				  CB_RET_INT, (void *)&retint,
 				  "eS",
 				  event,parm);
-        return retint;
+		return retint;
 }
 
 static const char *
@@ -1251,7 +1649,7 @@ int             parm2;
 		CB_RET_STR, (void *)&retstr, 
 		"Odi",
 		object, parm1, parm2);
-        return retstr;
+		return retstr;
 }
 
 static const char *
@@ -1271,7 +1669,7 @@ int             parm2;
 		CB_RET_STR, (void *)&retstr, 
 		"Odi",
 		object, parm1, parm2);
-        return retstr;
+		return retstr;
 
 }
 
@@ -1290,7 +1688,7 @@ FLObject *      object;
 		CB_RET_INT, (void *)&retint,
 		"O",
 		object);
-        return retint;
+		return retint;
 }
 
 static int
@@ -1308,7 +1706,7 @@ FLObject *      object;
 		CB_RET_INT, (void *)&retint,
 		"O",
 		object);
-        return retint;
+		return retint;
 }
 
 static int
@@ -1326,17 +1724,17 @@ FLObject *      object;
 		CB_RET_INT, (void *)&retint,
 		"O",
 		object);
-        return retint;
+		return retint;
 }
 
 static int
 process_canvas_event(object,window,int1,int2,event,parm)
-FLObject *     object;
-Window          window;
-int             int1;
-int             int2;
-XEvent *        event;
-void *          parm;
+FLObject *  object;
+Window		window;
+int         int1;
+int         int2;
+XEvent *    event;
+void *      parm;
 {
 	SV **   canv_event_cbs =
 		(get_object_data(object))->od_cevents;
@@ -1350,7 +1748,7 @@ void *          parm;
 		CB_RET_INT, (void *)&retint,
 		"OiiieS",
 		object,window,int1,int2,event,parm);
-        return retint;
+		return retint;
 }
 
 static int
@@ -1383,7 +1781,46 @@ void *          parm;
 				  CB_RET_INT, (void *)&retint,
 				  "eS",
 				  event,parm);
-        return retint;
+		return retint;
+}
+
+static int
+process_lose_sel_cb(object, type)
+FLObject *	object;
+long		type;
+{
+	/*
+	 * Generic lose clipboard selection callback
+	 */
+
+	int		retint;
+
+	call_perl_callback((get_object_data(object))->od_losesel, 
+		"Lose Selection",
+		CB_RET_INT, (void *)&retint,
+		"Ol",
+		object,type);
+		return retint;
+}
+
+static int
+process_gain_sel_cb(object, type, data, size)
+FLObject *	object;
+long		type;
+const void *data;
+long		size;
+{
+	/*
+	 * Generic gain clipboard selection data callback.
+	 */
+	int		retint;
+
+	call_perl_callback((get_object_data(object))->od_gainsel, 
+		"Gain Selection Data",
+		CB_RET_INT, (void *)&retint,
+		"Olsl",
+		object,type,data,size);
+		return retint;
 }
 
 /*
@@ -1394,149 +1831,182 @@ static void
 call_perl_callback(SV *callback, char * cbname, int outexpct, void *outvar, char *parmptrn, ...)
 {
 
-        /*
-         * Sets up the perl stack, calls the SUB, returns output if required
-         * This replaces the need for multiple real callback routines.
-         * It accepts a variable length parm list, the first three of
-         * which are required and are:
-         *
-         *      SV *            pointer to perl subroutine to call
+	/*
+	 * Sets up the perl stack, calls the SUB, returns output if required
+	 * This replaces the need for multiple real callback routines.
+	 * It accepts a variable length parm list, the first three of
+	 * which are required and are:
+	 *
+	 *      SV *            pointer to perl subroutine to call
 	 *      char *	    	character string identifying the callback
-         *      int             integer indicating whether a return value
-         *                      is expected, and what type it is:
-	 *				CB_FALSE -	No return value
-	 *				CB_RET_INT -    An integer
-	 *				CB_RET_STR -	A character string
-	 *	void *		Pointer to output variable
-         *      char *          a format string, one character for
-         *                      each parm to the perl sub, the chars
-         *                      being:
-	 *				d - a double float value
-         *                              p - a pointer
-         *                              i - an integer
-         *                              l - a long integer
-         *                              I - an IV
-         *				S - an SV
-         *                              s - a string
-         *                              e - an XEvent perl object
-         *                              F - an FL_FORM perl object
-         *                              O - an FL_OBJECT perl object
-         *
-         * the rest of the parms are the arguments to the perl subroutine.
-         */
+	 *      int             integer indicating whether a return value
+	 *                      is expected, and what type it is:
+	 *							CB_FALSE -	No return value
+	 *							CB_RET_INT -    An integer
+	 *							CB_RET_STR -	A character string
+	 *		void *			Pointer to output variable
+	 *      char *          a format string, one character for
+	 *                      each parm to the perl sub, the chars
+	 *                      being:
+	 *								d - a double float value
+     *                              n - a number indicating that the
+     *                                  next parm is an array pointer
+     *                              P - an FL_POINT
+	 *                              p - a pointer
+	 *                              i - an integer
+	 *                              j - a short integer
+	 *                              l - a long integer
+	 *                              I - an IV
+	 *								S - an SV
+	 *                              s - a string
+	 *                              e - an XEvent perl object
+	 *                              F - an FL_FORM perl object
+	 *                              O - an FL_OBJECT perl object
+	 *
+	 * the rest of the parms are the arguments to the perl subroutine.
+	 */
 
-        dSP ;
+	dSP ;
 
-        va_list ap;
-        int     count, ival;
-        long    lval;
-        IV      Ival;
-        double  dval;
-        void    *pval;
-        char    *sval;
-        SV      *tempsv, *Sval;
-        form_data *fd;
-        object_data *od;
-        FLForm  *form;
-        FLObject *object;
+	va_list ap;
+    FL_POINT *point;
+	int     count, ival, array_count;
+	long    lval;
+	IV      Ival;
+	double  dval;
+	void    *pval;
+	char    *sval, **psval;
+	SV      *tempsv, *Sval;
+	form_data *fd;
+	object_data *od;
+	FLForm  *form;
+	FLObject *object;
+	ENTER;
+	SAVETMPS;
+	PUSHMARK(sp) ;
 
-        ENTER;
-        SAVETMPS;
-        PUSHMARK(sp) ;
-
-	if (callback == NULL)
+	if (SvNULL(callback))
 		croak("%s callback routine not set", cbname);
 
-        va_start(ap, parmptrn);
-        while(*parmptrn) {
-            switch(*parmptrn++) {
+	va_start(ap, parmptrn);
+	while(*parmptrn) {
+		switch(*parmptrn) {
 
-                case 'p':
-                        pval = va_arg(ap, void *);
-                        XPUSHs(sv_2mortal(newSViv((IV)pval)));
-                        break;
+			case 'n':
+					array_count = va_arg(ap, int);
+                    break;
+            case 'P':
+                    point = va_arg(ap, FL_POINT *);
+                    while (array_count > 0)
+                    {
+						XPUSHs(sv_2mortal(newSViv((IV)point->x)));
+						XPUSHs(sv_2mortal(newSViv((IV)point->y)));
+						array_count--;
+						point++;
+                    }
+                    break;
+                         
+			case 'p':
+					pval = va_arg(ap, void *);
+					XPUSHs(sv_2mortal(newSViv((IV)pval)));
+					break;
+			case 'I':
+					Ival = va_arg(ap, IV);
+					XPUSHs(sv_2mortal(newSViv((IV)Ival)));
+					break;
 
-                case 'I':
-                        Ival = va_arg(ap, IV);
-                        XPUSHs(sv_2mortal(newSViv((IV)Ival)));
-                        break;
+			case 'S':
+					Sval = va_arg(ap, SV *);
+					XPUSHs(Sval);
+					break;
 
-                case 'S':
-                        Sval = va_arg(ap, SV *);
-                        XPUSHs(Sval);
-                        break;
+			case 'A':
+					Sval = va_arg(ap, SV *);
+					XPUSHs(sv_2mortal(newRV_inc(Sval)));
+					break;
 
-                case 'd':
-                        dval = va_arg(ap, double);
-                        XPUSHs(sv_2mortal(newSVnv(dval)));
-                        break;
+			case 'd':
+					dval = va_arg(ap, double);
+					XPUSHs(sv_2mortal(newSVnv(dval)));
+					break;
 
-                case 'i':
-                        ival = va_arg(ap, int);
-                        XPUSHs(sv_2mortal(newSViv((IV)ival)));
-                        break;
+			case 'i':
+					ival = va_arg(ap, int);
+					XPUSHs(sv_2mortal(newSViv((IV)ival)));
+					break;
 
-                case 'l':
-                        lval = va_arg(ap, long);
-                        XPUSHs(sv_2mortal(newSViv((IV)lval)));
-                        break;
+			case 'j':
+					ival = va_arg(ap, short);
+					XPUSHs(sv_2mortal(newSViv((IV)ival)));
+					break;
 
-                case 's':
-                        sval = va_arg(ap, char *);
-			if (sval == NULL)
-				XPUSHs(&sv_undef);
-			else
-                        	XPUSHs(sv_2mortal(newSVpv(sval,0)));
-                        break;
+			case 'l':
+					lval = va_arg(ap, long);
+					XPUSHs(sv_2mortal(newSViv((IV)lval)));
+					break;
 
-                case 'e':
-                        pval = va_arg(ap, void *);
-                        tempsv = sv_newmortal();
-                        sv_setref_iv(tempsv,object_name[X11XEvent],(IV)pval);
-                        XPUSHs(tempsv);
-                        break;
+			case 's':
+					sval = va_arg(ap, char *);
+					if (sval == NULL)
+						XPUSHs(&sv_undef);
+					else
+						XPUSHs(sv_2mortal(newSVpv(sval,0)));
+					break;
 
-                case 'F':
-                        form = (FLForm *)(va_arg(ap, void *));
-                        tempsv = bless_form(form);
-                        XPUSHs(tempsv);
-                        break;
+			case 'e':
+					pval = va_arg(ap, void *);
+					tempsv = sv_newmortal();
+					sv_setref_iv(tempsv,object_name[X11XEvent],(IV)pval);
+					XPUSHs(tempsv);
+					break;
 
-                case 'O':
-                        object = (FLObject *)(va_arg(ap, void *));
-                        tempsv = bless_object(object);
-                        XPUSHs(tempsv);
-                        break;
+			case 'F':
+					form = (FLForm *)(va_arg(ap, void *));
+					tempsv = bless_form(form);
+					XPUSHs(tempsv);
+					break;
 
-                default:
-                        croak("Erroneous call to 'call_perl_callback'");
-                        break;
-            }
-        }
-        va_end(ap);
-        PUTBACK ;
+			case 'O':
+					object = (FLObject *)(va_arg(ap, void *));
+					tempsv = bless_object(object);
+					XPUSHs(tempsv);
+					break;
 
-        count = perl_call_sv(callback, G_SCALAR);
+			default:
+					croak("Erroneous call to 'call_perl_callback'");
+					break;
 
-        SPAGAIN;
-        if (count > 1)
-                croak("Perl callback routine returned incorrectly");
-        else if (count == 1) {
-                if (outexpct == CB_RET_INT)
-                        *((int *)outvar) = POPi;
-                else if (outexpct == CB_RET_STR) {
-                        sval = POPp;
+		}
+        if (*parmptrn != 'n')
+            array_count = -1;
+        ++parmptrn;
+	}
+	va_end(ap);
+	PUTBACK ;
+
+	count = perl_call_sv(callback, G_SCALAR);
+
+	SPAGAIN;
+	if (count > 1)
+			croak("Perl callback routine returned incorrectly");
+	else if (count == 1) 
+	{
+		if (outexpct == CB_RET_INT)
+			*((int *)outvar) = POPi;
+		else if (outexpct == CB_RET_STR) 
+		{
+			sval = POPp;
 			get_buffer(strlen(sval));
 			strcpy(temp_str_buf, sval);
 			*((char **)outvar) = temp_str_buf;
 		}
 	}
-        PUTBACK;
-        FREETMPS;
-        LEAVE;
+	PUTBACK;
+	FREETMPS;
+	LEAVE;
 
-        if (outexpct && !count)
-                croak("Perl callback routine returned incorrectly");
+	if (outexpct && !count)
+		croak("Perl callback routine returned incorrectly");
 
 	return;
 }
@@ -1551,25 +2021,64 @@ static void     sv_setpv_c(SV* sv, const char* ptr)
 }
 
 /*
+ * Check if an SV conatins a null value: Its either undefined, the
+ * empty string or the integer 0 
+ */
+static int
+SvNULL(SV *sv)
+{
+	if (sv == NULL || (!SvOK(sv)) || (SvIOKp(sv) && SvIV(sv) == 0)
+	|| (SvPOKp(sv) && SvCUR(sv) == 0))
+		return 1;
+	return 0;
+}
+
+/*
  * Callback pointer maintenance functions
  */
 static void
-return_save_sv(SV **stack, SV **old_cb, SV *new_cb) {
-
-        *stack = sv_newmortal();
-        if (*old_cb)
-                sv_setsv(*stack, *old_cb);
-        savesv(old_cb, new_cb);
-}
-
-static void
-savesv(SV **old_cb, SV *new_cb) {
+savesv(SV **old_cb, SV *new_cb)
+{
 	if (*old_cb == NULL)
 		*old_cb = newSVsv(new_cb);
 	else 
 		SvSetSV(*old_cb,new_cb);
 }
 
+static void
+return_save_sv(SV **stack, SV **old_cb, SV *new_cb) {
+
+		*stack = sv_newmortal();
+		if (*old_cb)
+				sv_setsv(*stack, *old_cb);
+		savesv(old_cb, new_cb);
+}
+
+/*
+ * Simple reference checker - if the SV * is a reference then either
+ * return the special form or object blessed reference or create a
+ * new reference, otherwise return the SV * itself. Since objects and
+ * forms are the things most often banded around like this, this saves
+ * a bit of storage in Perl by NOT creating endless references.
+ */
+static SV *
+get_a_ref(SV *parm)
+{
+	if (parm != NULL && SvROK(parm))
+	{
+		if (sv_isa(parm,object_name[X11XformsFLForm]))
+			return get_form_data((FLForm*)SvIV((SV*)SvRV(parm)))->po; 
+		else if (sv_isa(parm,object_name[X11XformsFLObject]))
+			return get_object_data((FLObject*)SvIV((SV*)SvRV(parm)))->po; 
+		else 
+			return newRV(SvRV(parm));
+	}
+	else
+	{
+		return parm;
+	}
+}
+	
 /*
  * Special bless macro for forms (ensures comparison of blessed
  * form pointers gives expected results)
@@ -1577,13 +2086,13 @@ savesv(SV **old_cb, SV *new_cb) {
 static SV *
 bless_form(FLForm *f) {
 
-        form_data *     sfd;
+	form_data *     sfd;
 
-        if ((sfd = get_form_data(f))->po == NULL) {
-                sfd->po = newSViv(0);
-                sv_setref_iv(sfd->po,object_name[X11XformsFLForm],(IV)f);
-                SvREFCNT_inc(sfd->po);
-        }
+		if ((sfd = get_form_data(f))->po == NULL) {
+				sfd->po = newSViv(0);
+				sv_setref_iv(sfd->po,object_name[X11XformsFLForm],(IV)f);
+				SvREFCNT_inc(sfd->po);
+		}
 	return sfd->po;
 }
 
@@ -1594,13 +2103,13 @@ bless_form(FLForm *f) {
 static SV *
 bless_object(FLObject *o) {
 
-        object_data *   sod;
+		object_data *   sod;
 
-        if ((sod = get_object_data(o))->po == NULL) {
-                sod->po = newSViv(0);
-                sv_setref_iv(sod->po,object_name[X11XformsFLObject],(IV)o);
-                SvREFCNT_inc(sod->po);
-        }
+		if ((sod = get_object_data(o))->po == NULL) {
+				sod->po = newSViv(0);
+				sv_setref_iv(sod->po,object_name[X11XformsFLObject],(IV)o);
+				SvREFCNT_inc(sod->po);
+		}
 	return sod->po;
 }
 
@@ -1628,11 +2137,11 @@ chk_bless(SV * thing, int blesstype) {
 static object_data *
 get_object_data(FLObject *object)
 {
-        if (object->u_vdata == NULL)
-                object->u_vdata = calloc(1, sizeof(object_data));
-        if (object->u_vdata == NULL)
-                croak("Object user data allocation error");
-        return (object_data *)(object->u_vdata);
+		if (object->u_vdata == NULL)
+				object->u_vdata = calloc(1, sizeof(object_data));
+		if (object->u_vdata == NULL)
+				croak("Object user data allocation error");
+		return (object_data *)(object->u_vdata);
 }
 
 /*
@@ -1646,11 +2155,11 @@ get_object_data(FLObject *object)
 static form_data *
 get_form_data(FLForm *form)
 {
-        if (form->u_vdata == NULL)
-                form->u_vdata = calloc(1, sizeof(form_data));
-        if (form->u_vdata == NULL)
-                croak("Form user data allocation error");
-        return (form_data *)(form->u_vdata);
+		if (form->u_vdata == NULL)
+				form->u_vdata = calloc(1, sizeof(form_data));
+		if (form->u_vdata == NULL)
+				croak("Form user data allocation error");
+		return (form_data *)(form->u_vdata);
 }
 
 /*
@@ -1687,7 +2196,7 @@ static
 int	update_field(int items) {
 
 	if (items < 1 || items > 2)
-		croak("usage: Read '$ob->$field', Write '$ob->$field($new_val)'");
+		usage("Structure field access");
 	return --items;
 }
  
@@ -1695,9 +2204,6 @@ int	update_field(int items) {
  * Used by the modified boot function. Returns the xsub name constructed by
  * concatenating the package name from the integer with the function name
  * given by the string
- *
- * MADE VERY LITTLE DIFFERENCE TO OVERALL SIZE - removed
- *
  */
 static
 char *	make_xsub_name(int package, char *xsub)
@@ -1715,7 +2221,7 @@ char *	make_xsub_name(int package, char *xsub)
 }
 
 /*
- * Finally, replace the croak macro so that it points the caller to the
+ * Replace the croak macro so that it points the caller to the
  * documentation for usage errors. This is because the default message
  * is misleading when multiple protocols are supported by a single XSUB
  * function
@@ -1747,6 +2253,14 @@ void	croak(char * format, ...) {
 	Perl_croak(message);
 }
 
+/*
+ * Croak for usage - function name passed
+ */
+static
+void	usage(char *function)
+{
+	croak(FL_USAGE, function);
+}
 /*
  * Space-saving alloc for fl_set_xyplot_data and fl_set_xyplot_overlay
  */
@@ -1850,53 +2364,14 @@ MODULE = X11::Xforms		PACKAGE = X11::Xforms
 PROTOTYPES: DISABLE
 
 I32 
-FL_CON_0()
+fl_screen()
 	PROTOTYPE:
 	ALIAS:
-		FL_CON_1 = 1
-		FL_CON_2 = 2
-		FL_CON_3 = 3
-		FL_CON_4 = 4
-		FL_CON_5 = 5
-		FL_CON_6 = 6
-		FL_CON_7 = 7
-		FL_CON_8 = 8
-		FL_CON_9 = 9
-		FL_CON_10 = 10
-		FL_CON_11 = 11
-		FL_CON_12 = 12
-		FL_CON_13 = 13
-		FL_CON_14 = 14
-		FL_CON_15 = 15
-		FL_CON_16 = 16
-		FL_CON_17 = 17
-		FL_CON_18 = 18
-		FL_CON_19 = 19
-		FL_CON_20 = 20
-		FL_CON_21 = 21
-		FL_CON_22 = 22
-		FL_CON_23 = 23
-		FL_CON_24 = 24
-		FL_CON_25 = 25
-		FL_CON_26 = 26
-		FL_CON_27 = 27
-		FL_CON_28 = 28
-		FL_CON_32 = 32
-		FL_CON_64 = 64
-		FL_CON_128 = 128
-		FL_CON_256 = 256
-		FL_CON_512 = 512
-		FL_CON_1024 = 1024
-		FL_CON_2048 = 2048
-		FL_CON_4096 = 4096
-		FL_CON_8192 = 8192
-		FL_CON_16384 = 16384
-		FL_CON_16386 = 16386
-		FL_CON_32768 = 32768
-		FL_CON_65536 = 65536
-		FL_CON_131072 = 131072
-		FL_CON_262144 = 262144
-		FL_CON_524288 = 524288
+		fl_scrh = 1
+		fl_scrw = 2
+		fl_vmode = 3
+		fl_display = 4
+		fl_mouse_button = 5
 		fl_get_border_width = 2000
 		fl_get_coordunit = 2001
 		fl_get_visual_depth = 2002
@@ -1904,56 +2379,34 @@ FL_CON_0()
 		fl_get_linestyle = 2004
 		fl_get_drawmode = 2005
 		fl_end_all_command = 2006
-		fl_screen = 3003
-		fl_scrh = 3004
-		fl_scrw = 3005
-		fl_vmode = 3006
-		fl_display = 3007
-		fl_mouse_button = 3008
+		fl_current_pup = 2007
 	CODE:
 		switch(ix) {
-		case 2000:
-		case 2001:
-		case 2002:
-#if FL_INCLUDE_VERSION >= 84
-		case 2003:
-		case 2004:
-		case 2005:
-		case 2006:
-#endif
-			RETVAL = (int_void_funcs[ix-2000])();
-			break;
-#if FL_INCLUDE_VERSION < 84
-		case 2003:
-		case 2004:
-		case 2005:
-		case 2006:
-		case 3008:
+#if FL_INCLUDE_VERSION < 87
+		case 2007:
 			not_implemented(GvNAME(CvGV(cv)));
 			break;
 #endif
-		case 3003:
+		case 0:
 			RETVAL = fl_screen;
 			break;
-		case 3004:
+		case 1:
 			RETVAL = fl_scrh;
 			break;
-		case 3005:
+		case 2:
 			RETVAL = fl_scrw;
 			break;
-		case 3006:
+		case 3:
 			RETVAL = fl_vmode;
 			break;
-		case 3007:
+		case 4:
 			RETVAL = (I32)fl_display;
 			break;
-#if FL_INCLUDE_VERSION >= 84
-		case 3008:
+		case 5:
 			RETVAL = fl_mouse_button();
 			break;			
-#endif
 		default:
-			RETVAL = ix;
+			RETVAL = (int_void_funcs[ix-2000])();
 			break;
 		}
 	OUTPUT:
@@ -1974,7 +2427,7 @@ fl_library_version()
 	}
 		
 Display *
-fl_initialize(...)
+fl_initialize_real(...)
 	CODE: 
 	{
 		/*
@@ -1992,7 +2445,7 @@ fl_initialize(...)
 		 * simple list.
 		 */
 
-		int	num_opts, num_args, size_args, i;
+		int	num_opts, num_args, size_args, i, j;
 		I32	num_argv;
 		AV	*perl_argv = perl_get_av("ARGV", FALSE);
 		SV	*temp_sv, *perl_argv_0 = perl_get_sv("0", FALSE);
@@ -2006,7 +2459,7 @@ fl_initialize(...)
 
 		 */
 		if (items < 1 || (items-1) % 4 != 0)
-			croak("usage: fl_initialze(appname[,opt1,spec1,Xkind,value[...]])");
+			usage("fl_initialze");
 		appclass = (char *)SvPV(ST(0),na);
 		num_opts = (items - 1) / 4;
 
@@ -2048,28 +2501,34 @@ fl_initialize(...)
 		for (num_args = 0; num_args <= num_argv; ++num_args ) {
 			size_args += strlen(SvPV(*av_fetch(perl_argv, num_args, 0),na)) + 1; 
 		}
+		/*
+		 * Add the 'argv[0]' slot
+		 */
+		num_args++;
 
 		/*
-		 * Get some storage of that size
+		 * Get some storage of that size + space for the last null ptr
 		 */
 
 		fl_argv = temp_argv = 
-			calloc(1, size_args+(++num_args*sizeof(temp_argv)));
+			calloc(1, size_args+((num_args+1)*sizeof(temp_argv)));
 
 		/*
 		 * Make the top bit the char * and the rest 
 		 * contains the argv strings themselves
 		 */
 
-		argv_mem = (char *)(fl_argv + num_args);
+		argv_mem = (char *)(fl_argv + (num_args+1));
 		
 		fl_argv[0] = argv_mem;
-		argv_mem += strlen(strcpy(argv_mem,SvPV(perl_argv_0,na))) + 1;
+		j = strlen(strcpy(argv_mem,SvPV(perl_argv_0,na))) + 1;
+						argv_mem += j;
 
 		for (i = 0; i <= num_argv; ++i ) {
 			fl_argv[i+1] = argv_mem;
-			argv_mem += strlen(strcpy(argv_mem,
+			j = strlen(strcpy(argv_mem,
 				  SvPV(*av_fetch(perl_argv, i, 0),na))) + 1; 
+						argv_mem += j;
 		}
 
 		/*
@@ -2099,7 +2558,7 @@ fl_initialize(...)
 	OUTPUT:
 	RETVAL
 
-void
+SV *
 fl_set_atclose(callback,parm)
 	SV *		callback
 	SV * 		parm
@@ -2111,6 +2570,7 @@ fl_set_atclose(callback,parm)
 	{
 		form_data	*fmdat;
 
+		parm = get_a_ref(parm);
 		switch (ix) {
 		case 100:
 			/*
@@ -2120,7 +2580,7 @@ fl_set_atclose(callback,parm)
 			fmdat = get_form_data(fl_get_fselector_form());
 
 			savesv(&(fmdat->fd_fselcallback), callback);
-			fl_set_fselector_callback((callback == NULL ? NULL :
+			fl_set_fselector_callback((SvNULL(callback) ? NULL :
 				process_fselector_callback),
 				(void *)parm);
 			break;
@@ -2128,7 +2588,7 @@ fl_set_atclose(callback,parm)
 			return_save_sv(&(ST(0)),
 				&(appl_cb[ix]),
 				callback);
-			(set_appl_cb_funcs)[ix]((callback == NULL ? NULL :
+			(set_appl_cb_funcs)[ix]((SvNULL(callback) ? NULL :
 				appl_stubs[ix]),
 				(void *)parm);
 			break;
@@ -2145,6 +2605,7 @@ fl_add_event_callback(window,event,callback,parm)
 	{
 		cb_data *this,  **prev;
 
+		parm = get_a_ref(parm);
 		prev = &(get_cb_data()[event]);
 		/*
 		 * We only allow one handler for XErrorEvents for
@@ -2186,12 +2647,12 @@ fl_add_event_callback(window,event,callback,parm)
 		savesv(&this->callback, callback);
 
 		fl_add_event_callback(window, event,
-				      (callback == NULL ? NULL :
-				      process_single_event_callback),
-				      (void *)parm);
+					  (SvNULL(callback) ? NULL :
+					  process_single_event_callback),
+					  (void *)parm);
 	}
 
-void
+SV *
 fl_add_canvas_handler(object,event,callback,parm)
 	FLObject *	object
 	int		event
@@ -2203,21 +2664,22 @@ fl_add_canvas_handler(object,event,callback,parm)
 			get_object_data(object);
 		SV **   canv_event_cbs = obdat->od_cevents;
 
+		parm = get_a_ref(parm);
 		if (!canv_event_cbs) {
 			canv_event_cbs =
 				(SV **)calloc(LASTEvent, sizeof(SV *));
 			obdat->od_cevents = canv_event_cbs;
 		}
 		return_save_sv(&(ST(0)),
-			       &(canv_event_cbs[event]),
-			       callback);
+				   &(canv_event_cbs[event]),
+				   callback);
 		fl_add_canvas_handler(object, event,
-				      (callback == NULL ? NULL :
-				      process_canvas_event),
-				      (void *)parm);
+					  (SvNULL(callback) ? NULL :
+					  process_canvas_event),
+					  (void *)parm);
 	}
 
-void
+SV *
 fl_register_raw_callback(form,mask,callback)
 	FLForm *	form
 	long		mask
@@ -2228,10 +2690,10 @@ fl_register_raw_callback(form,mask,callback)
 			&(get_form_data(form)->fd_rawcallback), 
 			callback);
 		fl_register_raw_callback(form, mask,
-			(callback == NULL ? NULL : process_form_raw_callback));
+			(SvNULL(callback) ? NULL : process_form_raw_callback));
 	}
 
-void
+SV *
 fl_set_form_callback(form,callback,parm)
 	FLForm *	form
 	SV *		callback
@@ -2247,11 +2709,11 @@ fl_set_form_callback(form,callback,parm)
 			&(((fd_array *)get_form_data(form))->cb_ptr[ix]), 
 			callback);
 		(cb_FLF_cb_parm_funcs[ix])(form, 
-			(callback == NULL ? NULL : cb_FLF_cb_parm_handlers[ix]),
+			(SvNULL(callback) ? NULL : cb_FLF_cb_parm_handlers[ix]),
 			(void *)parm);
 	} 
 
-void
+SV *
 fl_set_object_callback(object,callback,parm=0)
 	FLObject *	object
 	SV *		callback
@@ -2264,31 +2726,44 @@ fl_set_object_callback(object,callback,parm=0)
 		fl_set_counter_filter = 5
 		fl_set_slider_filter = 6
 		fl_set_timer_filter = 7
+		fl_request_clipboard = 100
 	CODE:
 	{
-#if FL_INCLUDE_VERSION < 84
-		if (ix == 7)
-			not_implemened("fl_set_timer_filter");
-#endif
-			
-		return_save_sv(&(ST(0)), 
-		       &(((od_array *)get_object_data(object))->cb_ptr[ix]), 
-		       callback);
+		int i;
+
+		if (ix < 100)
+			return_save_sv(&(ST(0)), 
+			   &(((od_array *)get_object_data(object))->cb_ptr[ix]), 
+			   callback);
 
 		switch (ix) {
+#if FL_INCLUDE_VERSION < 87
+		case 100:
+			not_implemented(GvNAME(CvGV(cv)));
+			break;
+#endif
 		case 0:
 			fl_set_object_callback(object, 
-			(callback == NULL ? NULL : process_object_callback), 
+			(SvNULL(callback) ? NULL : process_object_callback), 
 			parm);
 			break;
 		case 1:
 			fl_set_browser_dblclick_callback(object, 
-			(callback == NULL ? NULL : process_brdbl_callback), 
+			(SvNULL(callback) ? NULL : process_brdbl_callback), 
 			parm);
 			break;
+#if FL_INCLUDE_VERSION >= 87
+		case 100:
+			savesv(&((get_object_data(object))->od_gainsel), callback);
+			i = fl_request_clipboard(object, FL_STRING,
+			(SvNULL(callback) ? NULL : process_gain_sel_cb));
+			ST(0) = sv_newmortal();
+			sv_setiv(ST(0), (IV)i);
+			break;
+#endif
 		default:
 			(cb_FLO_cb_funcs[ix-2])(object, 
-			(callback == NULL ? NULL : cb_FLO_cb_handlers[ix-2]));
+			(SvNULL(callback) ? NULL : cb_FLO_cb_handlers[ix-2]));
 			break;
 		}
 	} 
@@ -2322,7 +2797,7 @@ fl_bgn_form(box_type=0,width=0,height=0)
 	}
 
 FLObject *
-fl_create_button(type,x,y,width,height,label,handle=0,int2=0)
+fl_create_glcanvas(type,x,y,width,height,label,handle=0,int2=0)
 	int		type
 	FL_Coord	x
 	FL_Coord	y
@@ -2332,63 +2807,69 @@ fl_create_button(type,x,y,width,height,label,handle=0,int2=0)
 	SV *		handle
 	int		int2
 	ALIAS:
-		fl_add_button = 1
-		fl_create_lightbutton = 2
-		fl_add_lightbutton = 3
-		fl_create_roundbutton = 4
-		fl_add_roundbutton = 5
-		fl_create_checkbutton = 6
-		fl_add_checkbutton = 7
-		fl_create_bitmapbutton = 8
-		fl_add_bitmapbutton = 9
-		fl_create_pixmapbutton = 10
-		fl_add_pixmapbutton = 11
-		fl_create_bitmap = 12
-		fl_add_bitmap = 13
-		fl_create_pixmap = 14
-		fl_add_pixmap = 15
-		fl_create_box = 16
-		fl_add_box = 17
-		fl_create_text = 18
-		fl_add_text = 19
-		fl_create_menu = 20
-		fl_add_menu = 21
-		fl_create_chart = 22
-		fl_add_chart = 23
-		fl_create_choice = 24
-		fl_add_choice = 25
-		fl_create_counter = 26
-		fl_add_counter = 27
-		fl_create_slider = 28
-		fl_add_slider = 29
-		fl_create_valslider = 30
-		fl_add_valslider = 31
-		fl_create_input = 32
-		fl_add_input = 33
-		fl_create_browser = 34
-		fl_add_browser = 35
-		fl_create_dial = 36
-		fl_add_dial = 37
-		fl_create_timer = 38
-		fl_add_timer = 39
-		fl_create_clock = 40
-		fl_add_clock = 41
-		fl_create_positioner = 42
-		fl_add_positioner = 43
-		fl_create_xyplot = 44
-		fl_add_xyplot = 45
-		fl_create_canvas = 46
-		fl_add_canvas = 47
-		fl_create_frame = 48
-		fl_add_frame = 49
-		fl_create_round3dbutton = 50
-		fl_add_round3dbutton = 51
-		fl_create_textbox = 52
-		fl_add_textbox = 53
+		fl_add_glcanvas = 1
+		fl_create_button = 2 
+		fl_add_button = 3
+		fl_create_lightbutton = 4
+		fl_add_lightbutton = 5
+		fl_create_roundbutton = 6
+		fl_add_roundbutton = 7
+		fl_create_checkbutton = 8
+		fl_add_checkbutton = 9
+		fl_create_bitmapbutton = 10
+		fl_add_bitmapbutton = 11
+		fl_create_pixmapbutton = 12
+		fl_add_pixmapbutton = 13
+		fl_create_bitmap = 14
+		fl_add_bitmap = 15
+		fl_create_pixmap = 16
+		fl_add_pixmap = 17
+		fl_create_box = 18
+		fl_add_box = 19
+		fl_create_text = 20
+		fl_add_text = 21
+		fl_create_menu = 22
+		fl_add_menu = 23
+		fl_create_chart = 24
+		fl_add_chart = 25
+		fl_create_choice = 26
+		fl_add_choice = 27
+		fl_create_counter = 28
+		fl_add_counter = 29
+		fl_create_slider = 30
+		fl_add_slider = 31
+		fl_create_valslider = 32
+		fl_add_valslider = 33
+		fl_create_input = 34
+		fl_add_input = 35
+		fl_create_browser = 36
+		fl_add_browser = 37
+		fl_create_dial = 38
+		fl_add_dial = 39
+		fl_create_timer = 40
+		fl_add_timer = 41
+		fl_create_clock = 42
+		fl_add_clock = 43
+		fl_create_positioner = 44
+		fl_add_positioner = 45
+		fl_create_xyplot = 46
+		fl_add_xyplot = 47
+		fl_create_canvas = 48
+		fl_add_canvas = 49
+		fl_create_frame = 50
+		fl_add_frame = 51
+		fl_create_round3dbutton = 52
+		fl_add_round3dbutton = 53
 		fl_create_labelframe = 54
 		fl_add_labelframe = 55
-		fl_create_glcanvas = 56
-		fl_add_glcanvas = 57
+		fl_create_menubar = 56
+		fl_add_menubar = 57
+		fl_create_tabfolder = 58
+		fl_add_tabfolder = 59
+		fl_create_scrollbutton = 60
+		fl_add_scrollbutton = 61
+		fl_create_scrollbar = 62
+		fl_add_scrollbar = 63
 		fl_make_object = 100
 		fl_create_generic_button = 101
 		fl_create_generic_canvas = 102
@@ -2400,26 +2881,30 @@ fl_create_button(type,x,y,width,height,label,handle=0,int2=0)
 		int		hndl_ix = -1;
 
 		switch (ix) {
-#if FL_INCLUDE_VERSION < 85
-		case 54:
-		case 55:
-#if FL_INCLUDE_VERSION < 84
-		case 50:
-		case 51:
-		case 52:
-		case 53:
+#ifndef XFOPENGL
+		case 0:
+		case 1:
+			croak("Xforms4Perl OpenGL functions are not installed.");
+			break;
+#endif
+		case 56:
+		case 57:
+#if FL_INCLUDE_VERSION < 87
+		case 58:
+		case 59:
+		case 60:
+		case 61:
+		case 62:
+		case 63:
 #endif
 			not_implemented(GvNAME(CvGV(cv)));
 			break;
-#endif
 		case 100:
-			{
 			RETVAL = fl_make_object(type,int2,x,y,width,
 						height,label,
-						(handle == NULL ? NULL : 
+						(SvNULL(handle) ? NULL : 
 						process_make_handle));
 			hndl_ix = OD_MAKEHANDLER;
-			}
 			break;
 		case 101:
 			RETVAL = fl_create_generic_button(type,int2,x,y,width,
@@ -2431,26 +2916,21 @@ fl_create_button(type,x,y,width,height,label,handle=0,int2=0)
 			break;
 		case 104 :
 			RETVAL = fl_create_free(type,x,y,
-				       width,height,label,
-				       (handle == NULL ? NULL :
-				       process_free_handle));
+					   width,height,label,
+					   (SvNULL(handle) ? NULL :
+					   process_free_handle));
 			hndl_ix = OD_FREEHANDLER;
 			break;
 		case 105 :
 			RETVAL = fl_add_free(type,x,y,
-				       width,height,label,
-				       (handle == NULL ? NULL :
-				       process_free_handle));
+					   width,height,label,
+					   (SvNULL(handle) ? NULL :
+					   process_free_handle));
 			hndl_ix = OD_FREEHANDLER;
 			break;
 		default:
-			{
-			if ((ix == 56 || ix == 57) && !XFOpenGL)
-				croak("Xforms4Perl OpenGL functions are not installed.");
-
-			RETVAL = (create_add_funcs[ix])(type,x,y,width,height,label);
+			RETVAL = (create_add_funcs[ix].func)(type,x,y,width,height,label);
 			break;
-			}
 		}
 		if (RETVAL == NULL)
 			croak("%s of object type %i failed", 
@@ -2461,6 +2941,37 @@ fl_create_button(type,x,y,width,height,label,handle=0,int2=0)
 		if (hndl_ix >= 0)
 			savesv(&((od_array *)obdat)->cb_ptr[hndl_ix], handle);
 		ST(0) = bless_object(RETVAL);
+		if (ix < 100 && create_add_funcs[ix].init_cb != NULL)
+			call_perl_callback(create_add_funcs[ix].init_cb, 
+				"Class Initialization",
+				CB_FALSE, NULL, 
+				"O", RETVAL);
+	}
+
+SV *
+fl_set_class_callback(class_num,callback)
+	int			class_num
+	SV *		callback
+	CODE:
+	{
+		int ix_num;
+
+		if (class_num > FL_MAX_CLASS)
+			croak("Invalid xforms class");
+
+		if (class_num != fl_2_ix[class_num].fl_number
+		|| (ix_num = fl_2_ix[class_num].ix_number) < 0)
+		{
+			ST(0) = &sv_undef;
+		}
+		else
+		{
+			return_save_sv(&(ST(0)), 
+			   &(create_add_funcs[ix_num].init_cb), 
+			   callback);
+			create_add_funcs[ix_num+1].init_cb = 
+				create_add_funcs[ix_num].init_cb;
+		}
 	}
 
 FLObject *
@@ -2475,8 +2986,14 @@ fl_bgn_group()
 	{
 		RETVAL = (FLO_void_funcs[ix])();
 		if (ix < 2)
+		{
 			RETVAL->u_vdata = NULL;
-		ST(0) = bless_object(RETVAL);
+			ST(0) = bless_object(RETVAL);
+		}
+		else if (RETVAL == NULL)
+			ST(0) = &sv_undef;
+		else
+			ST(0) = bless_object(RETVAL);			
 	}
 
 void
@@ -2510,6 +3027,11 @@ fl_default_window()
 		fl_hide_fselector = 116
 		fl_hide_command_log = 117
 		fl_clear_command_log = 118
+		fl_hide_message = 119
+		fl_hide_question = 120
+		fl_hide_alert = 121
+		fl_hide_input = 122
+		fl_hide_choice = 123
 	PPCODE:
 	{
 		Window		win;
@@ -2520,11 +3042,12 @@ fl_default_window()
 		SV *            tempsv;
 
 		switch (ix) {
-#if FL_INCLUDE_VERSION < 84
-		case 9:
-		case 117:
-		case 118:
+#if FL_INCLUDE_VERSION < 87
 		case 119:
+		case 120:
+		case 121:
+		case 122:
+		case 123:
 			not_implemented(GvNAME(CvGV(cv)));
 			break;
 #endif
@@ -2569,14 +3092,12 @@ fl_default_window()
 			XPUSHs(tempsv);
 			break;
 			}
-#if FL_INCLUDE_VERSION >= 84
 		case 9:
 			fl_gettime(&l1, &l2);
 			EXTEND(sp, 2);
 			PUSHs(sv_2mortal(newSViv(l1)));
 			PUSHs(sv_2mortal(newSViv(l2)));
 			break;
-#endif
 		default:
 			void_void_funcs[ix-100]();
 			break;
@@ -2594,6 +3115,8 @@ fl_get_choice_text(object,i=0)
 	int             i
 	ALIAS:
 		fl_get_menu_text = 1
+		fl_get_folder_name = 2
+		fl_get_active_folder_name = 3
 		fl_get_browser_line = 100
 		fl_get_choice_item_text = 101
 		fl_get_menu_item_text = 102
@@ -2605,12 +3128,12 @@ fl_get_choice_text(object,i=0)
 		int	int_out;
 
 		switch (ix) {
-		case 0:
-			char_out = fl_get_choice_text(object);
+#if FL_INCLUDE_VERSION < 87
+		case 2:
+		case 3:
+			not_implemented(GvNAME(CvGV(cv)));
 			break;
-		case 1:
-			char_out = fl_get_menu_text(object);
-			break;
+#endif
 		case 200:
 			int_out = fl_isselected_browser_line(object,i);
 			break;
@@ -2618,7 +3141,10 @@ fl_get_choice_text(object,i=0)
 			int_out = fl_get_menu_item_mode(object,i);
 			break;
 		default:
-			char_out = (char_FLO_int_funcs[ix-100])(object,i);
+			if (ix >= 100)
+				char_out = (char_FLO_int_funcs[ix-100])(object,i);
+			else
+				char_out = (char_FLO_funcs[ix])(object);
 			break;
 		}
 		if (ix >= 200)
@@ -2638,38 +3164,40 @@ fl_setpup_mode(int1=0,int2=0,int3=0)
 	I32	        int3
 	ALIAS:
 		fl_msleep = 1
+		fl_dopup = 2
+		fl_check_command = 3
 		fl_getpup_mode = 100
 		fl_mode_capable = 101
 		fl_get_char_width = 102
 		fl_use_fselector = 200
 		fl_XEventsQueued = 201
-		fl_dopup = 202
 		fl_setpup_maxpup = 203
 		fl_show_colormap = 204
 		fl_setpup_fontsize = 205
 		fl_setpup_fontstyle = 206
+		fl_getpup_items = 207
+		fl_setpup_default_bw = 208
 		fl_end_command = 300
 		fl_getpup_text = 400
 		fl_vclass_name = 401
 		fl_get_directory = 500
 		fl_get_filename = 501
 		fl_get_pattern = 502
+		fl_now = 503
+		fl_whoami = 504
 	PPCODE:
 	{
 		I32		out_int;
 		const char *	out_char;
+		int		our_pup;
 
 		switch (ix) {
-#if FL_INCLUDE_VERSION < 84
-		case 205:
-			out_int = 1;
-			fl_setpup_fontsize(int1);
-			break;
-		case 206:
-			out_int = 1;
-			fl_setpup_fontstyle(int1);
-			break;		
-		case 300:
+#if FL_INCLUDE_VERSION < 87
+		case 3:
+		case 207:
+		case 208:
+		case 503:
+		case 504:
 			not_implemented(GvNAME(CvGV(cv)));
 			break;
 #endif
@@ -2679,11 +3207,17 @@ fl_setpup_mode(int1=0,int2=0,int3=0)
 		case 1:
 			out_int = fl_msleep(int1);
 			break;
-#if FL_INCLUDE_VERSION >= 84
+		case 2:
+			out_int = fl_dopup(int1);
+			break;
+#if FL_INCLUDE_VERSION >= 87
+		case 3:
+			out_int = fl_check_command(int1);
+			break;
+#endif
 		case 300:
 			out_int = fl_end_command(int1);
 			break;
-#endif
 		case 400:
 			out_char = fl_getpup_text(int1,int2);
 			break;
@@ -2713,8 +3247,6 @@ fl_setpup_mode(int1=0,int2=0,int3=0)
 FDFselector *
 fl_get_fselector_fdstruct()
 
-#if FL_INCLUDE_VERSION >= 85
-
 void
 fl_set_input_editkeymap(keymap)
 	FLEditKeymap *	keymap
@@ -2735,10 +3267,6 @@ fl_drw_slider(i1,x,y,w,h,c1,c2,i2,d1,d2,s1,i3,i4,i5)
 	int 		i3
 	int 		i4
 	int		i5
-
-#endif
-
-#if FL_INCLUDE_VERSION >= 84
 
 long 
 fl_show_question(string1,int1)
@@ -2761,6 +3289,7 @@ fl_add_timeout(time,callback,parm)
 	{
 		to_data	*prev = to_cb;
 
+		parm = get_a_ref(parm);
 		/* 
 		 * Add new timeout callback
 		 */
@@ -2804,16 +3333,6 @@ fl_remove_timeout(time_out_id)
 FDCmdlog *
 fl_get_command_log_fdstruct()
 
-#else
-
-int 
-fl_show_question(string1,string2,string3)
-	const char *	string1
-	const char *	string2
-	const char *	string3
-
-#endif
-
 void
 fl_show_messages(string1,string2="",string3="",string4="")
 	const char *	string1
@@ -2835,13 +3354,6 @@ fl_show_messages(string1,string2="",string3="",string4="")
 		int	int_out;
 
 		switch (ix) {
-#if FL_INCLUDE_VERSION < 84
-		case 0:
-		case 1:
-		case 4:
-			not_implemented(GvNAME(CvGV(cv)));
-			break;
-#else
 		case 0:
 			fl_show_messages(string1);
 			break;
@@ -2851,7 +3363,6 @@ fl_show_messages(string1,string2="",string3="",string4="")
 		case 4:
 			char_out = fl_show_simple_input(string1,string2);
 			break;
-#endif
 		case 2:
 			char_out = fl_show_input(string1,string2);
 			break;
@@ -2998,7 +3509,7 @@ fl_prepare_form_window(form,placement,border,formname)
 	CODE:
 	{
 		RETVAL = (ix ? fl_show_form(form,placement,border,formname)
-			     : fl_prepare_form_window(form,placement,
+				 : fl_prepare_form_window(form,placement,
 							border,formname));
 	}
 	OUTPUT:
@@ -3079,18 +3590,14 @@ fl_get_icm_color(c)
 
 		switch (ix) {
 			case 0:
-				{
 				fl_get_icm_color(c,&r,&g,&b); 
 				EXTEND(sp, 3);
 				break;
-				}
 			case 1:
-				{
 				result = fl_getmcolor(c,&r,&g,&b);
 				EXTEND(sp, 4);
 				PUSHs(sv_2mortal(newSViv(result)));
 				break;
-				}
 			default:
 				(void_FLC_funcs[ix-100])(c);
 				break;
@@ -3115,7 +3622,7 @@ fl_free_colors(...)
 		int	i = 1, color, numpts = 0;
 
 		if (items < 1)
-    			croak("usage: fl_free_colors(color,(color,....))");
+				usage("fl_free_colors");
 		
 		colors = (FL_COLOR *)calloc(items, sizeof(FL_COLOR));
 		for (i=0; i<items; i++)
@@ -3183,12 +3690,12 @@ fl_activate_form(form)
 		switch (ix) {
 		case 3:
 			/*
-			 * We must tidy up since xforms will delete the
+			 * we must tidy up since xforms will delete the
 			 * form - slight memory leak potential otherwise
 			 */
 			fm_data = get_form_data(form);
 			fl_free_form(form);
-                	SvREFCNT_dec(fm_data->po);
+					SvREFCNT_dec(fm_data->po);
 			free(fm_data);
 			break;
 		case 9:
@@ -3213,12 +3720,6 @@ fl_activate_form(form)
 			u1 =  fl_get_form_event_cmask(form);
 			XPUSHs(sv_2mortal(newSViv(u1)));  
 			break;
-#if FL_INCLUDE_VERSION < 84
-		case 14:
-		case 15:
-			not_implemented(GvNAME(CvGV(cv)));
-			break;
-#else
 		case 14:
 			i1 = fl_form_is_visible(form);
 			PUSHs(sv_2mortal(newSViv(i1)));  
@@ -3227,7 +3728,6 @@ fl_activate_form(form)
 			d1 = fl_adjust_form_size(form);
 			PUSHs(sv_2mortal(newSVnv(d1)));  
 			break;
-#endif
 		default:
 			(void_FLF_funcs[ix])(form);
 			break;
@@ -3268,6 +3768,442 @@ fl_add_object(form,object)
 		(void_FLF_FLO_funcs[ix])(form,object);
 	}
 
+#if FL_INCLUDE_VERSION >= 87
+
+void 
+fl_replace_folder_bynumber(object,number,form)
+	FLObject *		object
+	int				number
+	FLForm *		form 
+
+void
+fl_get_input_selected_range(object)
+	FLObject *	object
+	CODE:
+	{
+		int				start, finish;
+		const char *	selstr;
+
+		selstr = fl_get_input_selected_range(object, &start, &finish);
+
+		if (selstr == NULL)
+		{	
+			XPUSHs(&sv_undef);
+		}
+		else
+		{
+			EXTEND(sp, 3);
+			PUSHs(sv_2mortal(newSVpv((char *)selstr,0)));
+			PUSHs(sv_2mortal(newSViv(start)));
+			PUSHs(sv_2mortal(newSViv(finish)));
+		}
+	}
+
+FLObject *
+fl_get_focus_object(form)
+	FLForm *	form
+ 
+SV *
+fl_set_xyplot_symbol(object,overlay,callback)
+	FLObject *	object
+	int			overlay
+	SV *		callback
+	CODE:
+	{
+		return_save_sv(&(ST(0)),&((alloc_overlay_data(object, overlay))[overlay]),
+			   callback);
+		fl_set_xyplot_symbol(object,overlay,process_xyplot_symbol);
+	}
+
+long
+fl_set_clock_adjustment(object,l)
+	FLObject *      object
+	long			l
+
+FLObject *
+fl_get_object_component(object,i1,i2,i3)
+	FLObject *      object
+	int				i1
+	int				i2
+	int				i3
+	CODE:
+	{
+		RETVAL = fl_get_object_component(object,i1,i2,i3);
+		if (RETVAL == NULL)
+			ST(0) = &sv_undef;
+		else
+			ST(0) = bless_object(RETVAL);
+	}		
+
+void 
+fl_point(x,y,c)
+	FL_Coord		x
+	FL_Coord		y 
+	FL_COLOR		c
+
+int
+fl_stuff_clipboard(object,string,callback)
+	FLObject *      object
+	char *			string
+	SV *			callback
+	CODE:
+	{
+		int size = strlen(string);
+		savesv(&((get_object_data(object))->od_losesel), callback);
+		RETVAL = fl_stuff_clipboard(object, FL_STRING, 
+			string, (long)strlen(string),
+			(SvNULL(callback) ? NULL : process_lose_sel_cb));
+	}
+	OUTPUT:
+	RETVAL
+
+void
+fl_get_xyplot_data(object,id=0)
+	FLObject *      object
+	int				id
+	ALIAS:
+		fl_get_xyplot_overlay_data = 1
+	PPCODE:
+	{
+		float *xf, *yf;
+		int	pts, rpts, i;
+		/*
+		 * Get the number of points that are in the requested plot
+		 */
+		pts = fl_get_xyplot_numdata(object,id);
+
+		/*
+		 * If this is greater than 0, allocate an array of floats
+		 * twice its size, get the data into the array and then
+		 * send it back as x,y pairs in the result list
+		 */
+		if (pts > 0)
+		{
+			xf = (float *)calloc(pts*2, sizeof(float));
+			yf = xf + pts;
+			if (ix == 0)
+				fl_get_xyplot_data(object, xf, yf, &rpts);
+			else 
+				fl_get_xyplot_overlay_data(object, id,
+					xf, yf, &rpts);
+			/*
+			 * Return the list of points
+			 */
+			EXTEND(sp, (pts*2));
+			for(i=0; i<pts; ++i)
+			{
+				PUSHs(sv_2mortal(newSVnv(xf[i])));
+				PUSHs(sv_2mortal(newSVnv(yf[i])));
+			}
+			free((void *)xf);
+		}
+		else
+		{
+			XPUSHs(&sv_undef);
+		}
+	}
+			
+void
+fl_setpup_menucb(menu,callback,parm=0)
+	int		menu
+	SV *	callback
+	SV *	parm
+	ALIAS:
+		fl_setpup_entercb = 1
+		fl_setpup_leavecb = 2
+	CODE:
+	{
+		pupm_cb 	*pupm = add_pup_menu(menu);
+		parm = get_a_ref(parm);
+		switch(ix) {
+		case 0:
+			return_save_sv(&(ST(0)), &(pupm->cb), callback);
+			fl_setpup_menucb(menu, (SvNULL(callback) ? 
+					NULL : process_pupm_callback));
+			break;
+		case 1:
+			return_save_sv(&(ST(0)), &(pupm->ecb), callback);
+			fl_setpup_entercb(menu, (SvNULL(callback) ? 
+					NULL : process_pupm_entercb), (void *)parm);
+			break;
+		case 2:
+			return_save_sv(&(ST(0)), &(pupm->lcb), callback);
+			fl_setpup_leavecb(menu, (SvNULL(callback) ? 
+					NULL : process_pupm_leavecb), (void *)parm);
+			break;
+		}
+	}
+
+SV *
+fl_setpup_itemcb(menu,item,callback)
+	int		menu
+	int		item
+	SV *	callback
+	CODE:
+	{
+		pupi_cb 	*pupi = add_pup_item(menu,item);
+		return_save_sv(&RETVAL, &(pupi->cb), callback);
+		fl_setpup_itemcb(menu, item,
+			(SvNULL(callback) ? NULL : process_pupi_callback));
+	}
+	OUTPUT:
+	RETVAL
+
+int
+fl_set_menu_entries(...)
+	ALIAS:
+		fl_set_menubar_entries = 1
+		fl_setpup_entries = 2
+		fl_set_choice_entries = 3
+	CODE:
+	{
+		FLObject		*object;
+		int	 			i, parm, parm2, pup_id, dummy_id, num_entries;
+		char			*name;
+		FL_PUP_ENTRY    *entries;
+		pupi_cb 		*pupi;
+
+		/*
+		 * Extract the basics and set the parm index
+		 */
+		switch (ix) {
+		case 0:
+		case 3:
+			if (items < 2)
+				usage(GvNAME(CvGV(cv)));
+			object = (FLObject *)chk_bless(ST(0),X11XformsFLObject);
+			parm = 1;
+			break;
+		case 1:
+			not_implemented(GvNAME(CvGV(cv)));
+/*			if (items < 3)
+				usage(GvNAME(CvGV(cv)));
+			object = (FLObject *)chk_bless(ST(0), X11XformsFLObject);
+			name = (char *)SvPV(ST(1),na);
+			parm = 2;
+*/			break;
+		case 2:
+			if (items < 2)
+				usage(GvNAME(CvGV(cv)));
+			parm = 1;
+			pup_id = (int)SvIV(ST(0));
+			break;
+		}
+
+		/*
+		 * Now check the rest of the parms to ensure that we have
+		 * roughly the right format: an 'entry' is either four parms
+		 * long or the undefined value. We count to ensure the
+		 * we have the right number and to allocate the entry array
+		 */
+		parm2 = parm;
+		num_entries = 1;
+		while(parm < items)
+		{
+			++num_entries;
+			if (SvNULL(ST(parm)))
+				++parm;
+			else
+				parm += 4;
+		}
+		if (parm > items)
+			usage(GvNAME(CvGV(cv)));
+
+		/*
+		 * OK, we have a basically correct parm list and we know its
+		 * size. Allocate the entries array and then populate each
+		 * entry.
+		 * dummy_id is used as a place holder when we don't yet know the
+		 * pup_id for the menu being added. We decrement it just to make
+		 * sure it works properly.
+		 */
+		dummy_id = dummy_pup--;
+		entries = (FL_PUP_ENTRY *)calloc(num_entries, sizeof(FL_PUP_ENTRY));
+		for(i = 0, parm = parm2; parm < items; ++i)
+		{
+			if (SvNULL(ST(parm))) 
+			{
+				entries[i].text = NULL;
+				parm++;
+			}
+			else
+			{
+				entries[i].text = (char *)SvPV(ST(parm),na);
+				pupi = add_pup_item(dummy_id,i+1);
+				savesv(&(pupi->cb), ST(parm+1));
+				entries[i].callback = 
+					(SvNULL(ST(parm+1)) ? NULL : process_pupi_callback);
+				entries[i].shortcut = (char *)SvPV(ST(parm+2),na);
+				entries[i].mode = (int)SvIV(ST(parm+3));
+				parm += 4;
+			}
+		}
+
+		/*
+		 * Set the last entry
+		 */
+		entries[i].text = NULL;
+
+		/*
+		 * Call the relevant routine(s)
+		 */
+		switch (ix) {
+		case 0:
+			RETVAL = fl_set_menu_entries(object, entries);
+			pup_id = fl_get_menu_popup(object);
+			break;
+/*		case 1:
+			fl_set_menubar_entries(object, name, entries);
+			pup_id = fl_get_menu_popup(object);
+			RETVAL = 0;
+			break;
+*/		case 2:
+			RETVAL = fl_setpup_entries(pup_id, entries);
+			break;
+		case 3:
+			RETVAL = fl_set_choice_entries(object, entries);
+			break;
+		}
+
+		/*
+		 * Now replace the dummy pup id that we used with the real
+		 * pup-id - this is done because in the case of menus we don't
+		 * know the real id until now.
+		 *
+		 * If, however, the pup id is negative, we simply delete the
+		 * the dummy entry that we set up for it.
+		 */
+		if (pup_id >= 0)
+		{
+			del_pup_menu(pup_id);
+			change_pupm_id(dummy_id, pup_id);
+		}
+		else
+			del_pup_menu(dummy_id);
+				
+		/*
+		 * And free the area
+		 */
+		free((void *)entries);
+	}
+	OUTPUT:
+	RETVAL
+
+void
+fl_delete_folder(object,form)
+	FLObject *	object
+	FLForm *	form
+	ALIAS:
+		fl_set_folder = 1
+	CODE:
+	{
+		if (ix == 0) {
+			fl_delete_folder(object,form);
+		} else {
+			fl_set_folder(object,form);
+		}
+	}
+
+FLForm *
+fl_get_folder(object)
+	FLObject *	object
+	ALIAS:
+		fl_get_active_folder = 1
+	CODE:
+	{
+		if (ix == 0)
+			ST(0) = bless_form(fl_get_folder(object));
+		else
+			ST(0) = bless_form(fl_get_active_folder(object));
+	}
+
+FLObject *
+fl_addto_tabfolder(object,name,form)
+	FLObject *	object
+	const char *    name
+	FLForm *	form
+
+void
+fl_set_xyplot_keys(object,x,y,align,...)
+	FLObject *      object
+	float		x
+	float		y
+	int		align
+	ALIAS:
+		fl_set_xyplot_key_position = 1
+	CODE:
+	{
+	if (ix == 1) {
+		fl_set_xyplot_key_position(object,x,y,align);
+	} else {
+		int	i, array_size, num_keys;
+		char 	**keys, *key_str;
+
+		if (items < 5)
+				usage("fl_set_xyplot_keys");
+
+		num_keys = items-4;
+		/*
+		 * Add the total size of the key strings
+		 */
+		for (i = 4, array_size = 0; i < items; ++i ) {
+			array_size += strlen((const char *)SvPV(ST(i),na))+1; 
+		}
+
+		/*
+		 * Get some storage of that size + space for the last null ptr
+		 */
+
+		keys = (char **)calloc(1, array_size+((num_keys+1)*sizeof(keys)));
+
+		/*
+		 * Make the top bit the char *i array and the rest 
+		 * contains the key strings themselves
+		 */
+
+		key_str = (char *)(keys + (num_keys+1));
+		
+		for (i=0; i < num_keys; ++i) {
+			keys[i] = key_str;
+			key_str += strlen(strcpy(key_str,
+				  SvPV(ST(i),na))) + 1; 
+		}
+
+		/*
+		 * Call fl_set_xyplot_keys, then free the storage
+		 */
+		fl_set_xyplot_keys(object,keys,x,y,align);
+		free((void *)keys);
+	}
+
+	}
+
+int 
+fl_create_animated_cursor(...)
+	CODE:
+	{
+		int 	*cursors, num_cursors, interval;
+		int	i;
+
+		num_cursors = items - 1;
+		if (num_cursors < 1)
+				usage("fl_create_animated_cursor");
+
+		interval = SvIV(ST(items-1));
+		
+		cursors = (int *)calloc(num_cursors+1, sizeof(int));
+		for (i=0; i<num_cursors; i++)
+			cursors[i] = SvIV(ST(i));
+		cursors[i] = -1;
+
+		RETVAL = fl_create_animated_cursor(cursors, interval);
+		free((void *)cursors);
+	}
+	OUTPUT:
+	RETVAL
+
+#endif
+
 void 
 fl_set_form_icon(form,p1,p2)
 	FLForm *	form
@@ -3296,7 +4232,7 @@ fl_set_form_dblbuffer(form,i)
 	{
 		switch (ix) {
 		case 0:
-		    	fl_set_form_dblbuffer(form,i);
+				fl_set_form_dblbuffer(form,i);
 			break;
 		case 1:
 			fl_set_form_property(form,i);
@@ -3308,20 +4244,37 @@ fl_set_form_dblbuffer(form,i)
 	}
 
 void
+fl_remove_canvas_handler(object,event_type)
+	FLObject *	object
+	int			event_type
+	CODE:
+	{
+		object_data *ob_data = get_object_data(object);
+
+		if (ob_data &&
+		ob_data->od_cevents &&
+		ob_data->od_cevents[event_type]) 
+		{
+			fl_remove_canvas_handler(object, event_type, process_canvas_event);
+			ob_data->od_cevents[event_type] = NULL;
+		}	
+	}
+
+void
 fl_get_object_position(object,place=0,str="")
 	FLObject *	object
-	int		place
+	int			place
 	char *		str
 	ALIAS:
 		fl_get_pixmap_pixmap = 1
 		fl_get_clock = 2
 		fl_get_input_cursorpos = 3
 		fl_get_input = 5
-		fl_remove_canvas_handler = 6
 		fl_get_canvas_id = 7
 		fl_get_canvas_colormap = 8
 		fl_set_xyplot_maxoverlays = 9
 		fl_free_object = 10
+		fl_get_xyplot_numdata = 11
 		fl_get_browser = 100
 		fl_get_browser_maxline = 101
 		fl_get_browser_screenlines = 102
@@ -3336,13 +4289,15 @@ fl_get_object_position(object,place=0,str="")
 		fl_get_input_topline = 111
 		fl_get_input_screenlines = 112
 		fl_get_input_numberoflines = 113
-		fl_get_textbox_longestline = 114
+		fl_get_folder_number = 114
+		fl_get_active_folder_number = 115
+		fl_get_menu_popup = 116
+		fl_get_input_xoffset = 117
 		fl_delete_browser_line = 200
 		fl_deselect_browser_line = 201
 		fl_select_browser_line = 202
 		fl_set_browser_fontsize = 203
 		fl_set_browser_fontstyle = 204
-		fl_set_browser_leftslider = 205
 		fl_set_browser_specialkey = 206
 		fl_set_browser_topline = 207
 		fl_set_browser_vscrollbar = 208
@@ -3359,7 +4314,6 @@ fl_get_object_position(object,place=0,str="")
 		fl_set_object_lsize = 219
 		fl_set_object_lstyle = 220
 		fl_set_object_return = 221
-		fl_set_canvas_decoration = 222
 		fl_set_canvas_depth = 223
 		fl_canvas_yield_to_shortcut = 224
 		fl_delete_choice = 225
@@ -3394,18 +4348,23 @@ fl_get_object_position(object,place=0,str="")
 		fl_set_input_vscrollbar = 254
 		fl_set_input_xoffset = 255
 		fl_set_input_topline = 256
-		fl_set_textbox_topline = 257
-		fl_set_timer_countup = 258
-		fl_set_xyplot_xgrid = 259
-		fl_set_xyplot_ygrid = 260
-		fl_set_browser_hscrollbar = 261
-		fl_set_pixmapbutton_focus_outline = 262
+		fl_set_timer_countup = 257
+		fl_set_xyplot_xgrid = 258
+		fl_set_xyplot_ygrid = 259
+		fl_set_browser_hscrollbar = 260
+		fl_set_pixmapbutton_focus_outline = 261
+		fl_delete_folder_bynumber = 262
+		fl_set_folder_bynumber = 263
+		fl_set_scrollbar_return = 264
+		fl_set_clock_ampm = 265
+		fl_show_browser_line = 266
 		fl_insert_browser_line = 300
 		fl_replace_browser_line = 301
 		fl_replace_choice = 302
 		fl_replace_menu_item = 303
 		fl_set_choice_item_shortcut = 304
 		fl_set_menu_item_shortcut = 305
+		fl_set_xyplot_key = 306
 		fl_activate_object = 500
 		fl_addto_group = 501
 		fl_call_object_callback = 502
@@ -3424,14 +4383,15 @@ fl_get_object_position(object,place=0,str="")
 		fl_clear_menu = 516
 		fl_clear_chart = 517
 		fl_reset_focus_object = 518
-		fl_clear_textbox = 519
-		fl_suspend_timer = 520
-		fl_resume_timer = 521
-		fl_clear_xyplot = 522
-		fl_draw_object_label_outside = 523
+		fl_suspend_timer = 519
+		fl_resume_timer = 520
+		fl_clear_xyplot = 521
+		fl_draw_object_label_outside = 522
+		fl_clear_menubar = 523
 		fl_get_object_geometry = 600
 		fl_get_browser_dimension = 601
 		fl_get_object_bbox = 602
+		fl_get_folder_area = 603
 	PPCODE:
 	{
 		FL_Coord 	x, y, xl, yl;
@@ -3443,37 +4403,23 @@ fl_get_object_position(object,place=0,str="")
 		object_data *   ob_data;
 
 	switch (ix) {
-#if FL_INCLUDE_VERSION < 86
-		case 262:
-#if FL_INCLUDE_VERSION < 85
 		case 523:
-		case 252:
-#if FL_INCLUDE_VERSION < 84
-		case 111:
-		case 112:
-		case 113:
+#if FL_INCLUDE_VERSION < 87
+		case 11:
 		case 114:
-		case 250:
-		case 251:
-		case 253:
-		case 254:
-		case 255:
-		case 256:
-		case 257:
-		case 258:
-		case 259:
-		case 260:
-		case 261:
-		case 518:
-		case 519:
-		case 520:
-		case 521:
-		case 522:
-#endif
+		case 115:
+		case 116:
+		case 117:
+		case 262:
+		case 263:
+		case 264:
+		case 265:
+		case 266:
+		case 306:
+		case 603:
 #endif
 			not_implemented(GvNAME(CvGV(cv)));
 			break;
-#endif
 		case 0: 
 			fl_get_object_position(object, &x, &y);
 			EXTEND(sp, 2);
@@ -3504,18 +4450,6 @@ fl_get_object_position(object,place=0,str="")
 			else
 				XPUSHs(sv_2mortal(newSVpv((char *)conch,0)));
 			break;
-		case 6:
-			{
-			ob_data = get_object_data(object);
-
-			if (ob_data &&
-			ob_data->od_cevents &&
-			ob_data->od_cevents[place]) {
-				fl_remove_canvas_handler(object, place,
-				      process_canvas_event);
-				ob_data->od_cevents[place] = NULL;
-			}	
-			}
 		case 7:
 			win = fl_get_canvas_id(object);
 			XPUSHs(sv_2mortal(newSViv(win)));
@@ -3525,7 +4459,17 @@ fl_get_object_position(object,place=0,str="")
 			XPUSHs(sv_2mortal(newSViv(cmap)));
 			break;
 		case 9:
-			i = fl_set_xyplot_maxoverlays(object,place);
+			ob_data = get_object_data(object);
+			if (ob_data->od_xyplot_symbol == NULL)
+			{
+				i = fl_set_xyplot_maxoverlays(object,place);
+				(get_object_data(object))->od_max_overlays = place;
+			}
+			else
+			{
+				i = ob_data->od_max_overlays;
+				alloc_overlay_data(object, place);
+			}
 			XPUSHs(sv_2mortal(newSViv(i)));
 			break;
 		case 10:
@@ -3535,12 +4479,21 @@ fl_get_object_position(object,place=0,str="")
 			 */
 			ob_data = get_object_data(object);
 			fl_free_object(object);
-                	SvREFCNT_dec(ob_data->po);
+			SvREFCNT_dec(ob_data->po);
 			free(ob_data);
 			break;
+#if FL_INCLUDE_VERSION >= 87
+		case 11:
+			i = fl_get_xyplot_numdata(object,place);
+			XPUSHs(sv_2mortal(newSViv(i)));
+			break;
+#endif
 		case 600:
 		case 601:
 		case 602:
+#if FL_INCLUDE_VERSION >= 87
+		case 603:
+#endif
 			(void_FLO_iiii_funcs[ix-600])(object, &x, &y, 
 							&xl, &yl);
 			EXTEND(sp, 4);
@@ -3577,7 +4530,7 @@ fl_create_from_pixmapdata(win,tran,...)
 		char **	buffer;
 
 		if (items < 3)
-			croak("usage: fl_create_from_pixmapdata(win,tran,pixmap_str,...)");
+			usage("fl_create_from_pixmapdata");
 
 		/*
 		 * Build the pixmap data storage
@@ -3640,7 +4593,7 @@ fl_set_pixmap_data(object,...)
 		char	**buffer;
 		
 		if (items < 2)
-			croak("usage: fl_set_pixmap_data(object,pixmap_str,...)");
+			usage("fl_set_pixmap_data");
 
 		/*
 		 * Build the pixmap data storage
@@ -3678,11 +4631,7 @@ fl_set_object_color(object,color1,color2=0)
 			fl_set_object_lcol(object,color1);
 			break; 
 		case 2:
-#if FL_INCLUDE_VERSION < 84
-			not_implemented("fl_set_chart_lcolor");
-#else
 			fl_set_chart_lcolor(object,color1);
-#endif
 			break;
 		}
 	}
@@ -3691,7 +4640,7 @@ void
 fl_get_xyplot(object)
 	FLObject *      object
 	ALIAS:
-		fl_get_xyplot_data = 1
+		fl_get_browser_xoffset = 1
 		fl_get_dial_bounds = 100
 		fl_get_positioner_xbounds = 101
 		fl_get_positioner_ybounds = 102
@@ -3701,48 +4650,55 @@ fl_get_xyplot(object)
 		fl_get_xyplot_xmapping = 201
 		fl_get_xyplot_ybounds = 202
 		fl_get_xyplot_ymapping = 203
+		fl_get_counter_step = 204
+		fl_get_scrollbar_increment = 205
+		fl_get_scrollbar_bounds = 206
+		fl_get_slider_increment = 207
 		fl_get_timer = 300
 		fl_get_counter_value = 301
 		fl_get_dial_value = 302
 		fl_get_positioner_xvalue = 303
 		fl_get_positioner_yvalue = 304
 		fl_get_slider_value = 305
+		fl_get_scrollbar_value = 306
 		fl_get_input_format = 400
 	PPCODE:
 	{
 		double	value1, value2;
 		float	float1, float2;
+		FL_Coord	x;
 		int	int1, int2;
 
 		switch (ix) {
-#if FL_INCLUDE_VERSION < 86
-		case 104:
-#if FL_INCLUDE_VERSION < 84
-		case 400:
-#endif
+#if FL_INCLUDE_VERSION < 87
+		case 1:
+		case 204:
+		case 205:
+		case 206:
+		case 207:
+		case 306:
 			not_implemented(GvNAME(CvGV(cv)));
 			break;
 #endif
-		case 0:
+#if FL_INCLUDE_VERSION >= 87
 		case 1:
-			if (ix == 0)
-				fl_get_xyplot(object, &float1, &float2, &int1);
-			else
-				fl_get_xyplot_data(object, &float1, &float2, 
-					&int1);
+			x = fl_get_browser_xoffset(object);
+			XPUSHs(sv_2mortal(newSViv(x)));
+			break;
+#endif
+		case 0:
+			fl_get_xyplot(object, &float1, &float2, &int1);
 			EXTEND(sp, 3);
 			PUSHs(sv_2mortal(newSVnv(float1)));
 			PUSHs(sv_2mortal(newSVnv(float2)));
 			PUSHs(sv_2mortal(newSViv(int1)));
 			break;
-#if FL_INCLUDE_VERSION >= 84
 		case 400:
 			fl_get_input_format(object,&int1,&int2);
 			EXTEND(sp, 2);
 			PUSHs(sv_2mortal(newSViv(int1)));
 			PUSHs(sv_2mortal(newSViv(int2)));
 			break;
-#endif
 		default:
 			if (ix >= 300){
 				value1 = (dbl_FLO_funcs[ix-300])(object);
@@ -3773,10 +4729,9 @@ fl_set_object_geometry(object,x,y=0,xl=0,yl=0)
 	FL_Coord	yl
 	ALIAS:
 		fl_set_browser_xoffset = 1
-		fl_set_textbox_xoffset = 2
-		fl_fit_object_label = 3
-		fl_set_object_position = 4
-		fl_set_object_size = 5
+		fl_fit_object_label = 2
+		fl_set_object_position = 3
+		fl_set_object_size = 4
 	CODE:
 	{
 		switch (ix) {
@@ -3786,15 +4741,8 @@ fl_set_object_geometry(object,x,y=0,xl=0,yl=0)
 		case 1:
 			fl_set_browser_xoffset(object,x);
 			break;
-		case 2:
-#if FL_INCLUDE_VERSION < 84
-			not_implemented("fl_set_textbox_xoffset");
-#else
-			fl_set_textbox_xoffset(object,x);
-#endif
-			break;
 		default:
-			(void_FLO_FLX_FLX_funcs[ix-3])(object,x,y);
+			(void_FLO_FLX_FLX_funcs[ix-2])(object,x,y);
 			break;
 		}
 	}
@@ -3813,6 +4761,8 @@ fl_set_object_shortcut(object,str,show=0)
 	int		show
 	ALIAS:
 		fl_load_browser = 1
+		fl_addto_choice = 2
+		fl_addto_menu = 3
 		fl_add_browser_line = 100
 		fl_addto_browser = 101
 		fl_set_bitmap_file = 102
@@ -3820,28 +4770,49 @@ fl_set_object_shortcut(object,str,show=0)
 		fl_set_input = 104
 		fl_set_object_label = 105
 		fl_set_pixmap_file = 106
-		fl_addto_choice = 107
-		fl_addto_menu = 108
-		fl_set_choice_text = 109
-		fl_set_menu = 110
-		fl_delete_xyplot_text = 111
-		fl_addto_browser_chars = 112
+		fl_set_choice_text = 107
+		fl_set_menu = 108
+		fl_delete_xyplot_text = 109
+		fl_addto_browser_chars = 110
+		fl_set_menubar = 111
+		fl_delete_folder_byname = 112
+		fl_set_folder_byname = 113
 	PPCODE:
 	{
 		int	result;
 		
 		switch (ix) {
-#if FL_INCLUDE_VERSION < 84
 		case 111:
+#if FL_INCLUDE_VERSION < 87
+		case 112:
+		case 113:
+#endif
 			not_implemented(GvNAME(CvGV(cv)));
 			break;
-#endif
 		case 0:
 			fl_set_object_shortcut(object,str,show);
 			break;
 		case 1:
 			result = fl_load_browser(object,str);
 			XPUSHs(sv_2mortal(newSViv(result)));
+			break;
+		case 2:
+#if FL_INCLUDE_VERSION >= 87
+			result = 
+#endif
+				fl_addto_choice(object,str);
+#if FL_INCLUDE_VERSION >= 87
+			XPUSHs(sv_2mortal(newSViv(result)));
+#endif
+			break;
+		case 3:
+#if FL_INCLUDE_VERSION >= 87
+			result = 
+#endif
+				fl_addto_menu(object,str);
+#if FL_INCLUDE_VERSION >= 87
+			XPUSHs(sv_2mortal(newSViv(result)));
+#endif
 			break;
 		default:
 			(void_FLO_char_funcs[ix-100])(object,str);
@@ -3865,6 +4836,9 @@ fl_set_timer(object,x,y=1)
 		fl_set_slider_size = 8
 		fl_set_slider_step = 9
 		fl_set_slider_value = 10
+		fl_set_scrollbar_value = 11
+		fl_set_scrollbar_size = 12
+		fl_set_scrollbar_step = 13
 		fl_scale_object = 100
 		fl_set_counter_bounds = 101
 		fl_set_counter_step = 102
@@ -3877,6 +4851,8 @@ fl_set_timer(object,x,y=1)
 		fl_set_xyplot_xbounds = 109
 		fl_set_xyplot_ybounds = 110
 		fl_set_slider_increment = 111
+		fl_set_scrollbar_increment = 112
+		fl_set_scrollbar_bounds = 113
 		fl_xyplot_s2w = 200
 		fl_xyplot_w2s = 201
 	PPCODE:
@@ -3884,8 +4860,12 @@ fl_set_timer(object,x,y=1)
 		float 	fx, fy;
 	
 		switch (ix) {
-#if FL_INCLUDE_VERSION < 85
-		case 111:
+#if FL_INCLUDE_VERSION < 87
+		case 11:
+		case 12:
+		case 13:
+		case 112:
+		case 113:
 			not_implemented(GvNAME(CvGV(cv)));
 			break;
 #endif
@@ -3914,7 +4894,7 @@ fl_set_pixmap_align(obj,int1,int2,int3=0)
 	FLObject *	obj 
 	int 		int1
 	int 		int2
-	int		int3
+	int			int3
 	ALIAS:
 		fl_set_object_gravity = 100
 		fl_set_browser_line_selectable = 101
@@ -3930,22 +4910,20 @@ fl_set_pixmap_align(obj,int1,int2,int3=0)
 		fl_set_input_scrollbarsize = 111
 		fl_set_xyplot_linewidth = 112
 		fl_set_browser_scrollbarsize = 113
+		fl_set_xyplot_key_font = 114
 	CODE:
 	{
 		switch (ix) {
-		case 0:
-			fl_set_pixmap_align(obj,int1,int2,int3);
-			break;
-#if FL_INCLUDE_VERSION < 84
-		case 110:
-		case 111:
-		case 112:
-		case 113:
+#if FL_INCLUDE_VERSION < 87
+		case 114:
 			not_implemented(GvNAME(CvGV(cv)));
 			break;
 #endif
+		case 0:
+			fl_set_pixmap_align(obj,int1,int2,int3);
+			break;
 		default:
-		    	(void_FLO_int_int_funcs[ix-100])(obj,int1,int2);
+				(void_FLO_int_int_funcs[ix-100])(obj,int1,int2);
 			break;
 		}
 	}
@@ -3959,7 +4937,7 @@ fl_get_app_resources(...)
 		FL_resource *	res_buffer;
 
 		if (items < 3 || items%3 != 0)
-			croak("usage: @reslist = fl_get_app_resources(name,class,default,...)");
+			usage("fl_get_app_resources");
 		numres = items / 3;
 
 		/*
@@ -4001,6 +4979,15 @@ fl_get_app_resources(...)
 		free(str_buffer);
 	}
 
+#if FL_INCLUDE_VERSION >= 87
+
+void
+fl_share_canvas_colormap(object,colormap)
+	FLObject *	object
+	Colormap	colormap
+
+#endif
+
 void
 fl_set_canvas_colormap(object,colormap)
 	FLObject *	object
@@ -4031,12 +5018,12 @@ fl_modify_canvas_prop(object,init_cb,act_cb,clean_cb)
 		savesv(&obdat->od_mcpact, act_cb);
 		savesv(&obdat->od_mcpclean, clean_cb);
 		fl_modify_canvas_prop(object,
-				      (init_cb == NULL ? NULL :
-				      process_mcp_init),
-				      (act_cb == NULL ? NULL :
-				      process_mcp_act),
-				      (clean_cb == NULL ? NULL :
-				      process_mcp_clean));
+					  (SvNULL(init_cb) ? NULL :
+					  process_mcp_init),
+					  (SvNULL(act_cb) ? NULL :
+					  process_mcp_act),
+					  (SvNULL(clean_cb) ? NULL :
+					  process_mcp_clean));
 	}
 
 void
@@ -4051,6 +5038,7 @@ fl_get_winsize(win)
 		fl_winhide = 102
 		fl_winset = 103
 		fl_activate_event_callbacks = 104
+		fl_winfocus = 105
 	PPCODE:
 	{
 		Window          outwin;
@@ -4058,6 +5046,11 @@ fl_get_winsize(win)
 		unsigned int    i1;
 
 		switch (ix) {
+#if FL_INCLUDE_VERSION < 87
+		case 105:
+			not_implemented(GvNAME(CvGV(cv)));
+			break;
+#endif
 		case 0: {
 			fl_get_winsize(win, &x, &y);
 			EXTEND(sp, 2);
@@ -4156,11 +5149,7 @@ fl_set_clippings(x,y,xl,yl,int1)
 		fl_set_fselector_filetype_marker = 1
 	CODE:
 	{
-#if FL_INCLUDE_VERSION < 85
-		XRectangle	xrect;
-#else
 		FL_RECT		xrect;
-#endif
 		switch (ix) {
 		case 0:
 			xrect.x = x;
@@ -4239,21 +5228,15 @@ fl_set_visualID(i)
 		fl_set_fselector_fontsize = 119
 		fl_set_fselector_fontstyle = 120
 		fl_set_dirlist_sort = 121
+		fl_set_scrollbar_type = 122
 	PPCODE:
 	{
 		Cursor		crsr;
 		sig_data	*this,	**prev = &sig_cb;
 
 	switch (ix) {
-#if FL_INCLUDE_VERSION < 85
-	case 121:
-#if FL_INCLUDE_VERSION < 84
-	case 3:
-	case 117:
-	case 118:
-	case 119:
-	case 120:
-#endif
+#if FL_INCLUDE_VERSION < 122
+	case 105:
 		not_implemented(GvNAME(CvGV(cv)));
 		break;
 #endif
@@ -4282,11 +5265,9 @@ fl_set_visualID(i)
 			free(this);
 		}
 		break;
-#if FL_INCLUDE_VERSION >= 84
 	case 3:
 		fl_set_idle_delta(i);
 		break;
-#endif
 	default:
 		(void_int_funcs[ix-100])((int)i);
 		break;
@@ -4307,6 +5288,7 @@ fl_add_signal_callback(sgnl,callback,parm)
 	CODE:
 	{
 		sig_data	*this,	**prev = &sig_cb;
+		parm = get_a_ref(parm);
 
 		/*
 		 * Now see if this signal has a callback
@@ -4356,12 +5338,8 @@ fl_setpup_title(num,string)
 			fl_setpup_title(num,string);
 			break;
 		case 1:	
-#if FL_INCLUDE_VERSION < 84
-			fl_set_font_name(num,string);
-#else
 			result = fl_set_font_name(num,string);
 			XPUSHs(sv_2mortal(newSViv(result)));
-#endif
 			break;
 		case 2:
 			result = fl_addtopup(num,string);
@@ -4396,7 +5374,7 @@ fl_get_align_xy(int1,int2,int3,int4,int5,int6,int7,int8,int9)
 
 
 void 
-fl_remove_io_callback(fd,condition)
+fl_remove_io_callback_real(fd,condition)
 	int		fd 
 	unsigned	condition 
 	CODE:
@@ -4422,18 +5400,20 @@ fl_remove_io_callback(fd,condition)
 		 * Now call the XForm library function
 		 */
 		fl_remove_io_callback(fd, condition, 
-				      process_io_event_callback);
+					  process_io_event_callback);
 	}
 
 void 
-fl_add_io_callback(fd,condition,callback,parm)
+fl_add_io_callback_real(fd,condition,callback,parm,fh)
 	int		fd 
 	unsigned	condition 
 	SV *		callback 
 	SV *		parm
+	SV *		fh
 	CODE:
 	{
 		io_data	*this,	**prev = &io_cb;
+		parm = get_a_ref(parm);
 
 		/*
 		 * Now see if this fd/condition pair has a callback
@@ -4457,10 +5437,11 @@ fl_add_io_callback(fd,condition,callback,parm)
 		 * XForm library function, using the io_data pointer
 		 * as the parm
 		 */
-		this->callback = callback;
+		savesv(&this->callback,callback);
 		this->fd = fd; 
 		this->condition = condition; 
-		this->parm = parm; 
+		this->parm = parm;
+        this->fh = fh; 
 
 		fl_add_io_callback(fd, condition, 
 				   process_io_event_callback,
@@ -4475,7 +5456,7 @@ fl_free_pixels(...)
 		int	i = 1;
 
 		if (items < 1)
-    			croak("usage: fl_free_pixels(pixel,(pixel,....))");
+				usage("fl_free_pixels");
 		
 		pixels = (unsigned long *)calloc(items, sizeof(unsigned long));
 		for (i=0; i<items; i++)
@@ -4496,105 +5477,9 @@ fl_get_defaults()
 	RETVAL
 
 void
-fl_set_defaults(...)
-	CODE:
-	{
-		unsigned long           def_flags, def_name;
-		FL_IOPT                 fl_iopt;
-		int                     i;
-
-		if (items < 2 || items%2 != 0)
-			croak("usage: fl_set_defaults(FL_PDname,value,...)");
-
-		for (i=0; i<items; ++i) {
-
-			def_name = SvIV(ST(i));
-			i++;
-
-			switch(def_name) {
-
-				case FL_PDDepth:
-					fl_iopt.depth = SvIV(ST(i));
-					break;
-				case FL_PDClass:
-					fl_iopt.vclass = SvIV(ST(i));
-					break;
-				case FL_PDDouble:
-					fl_iopt.doubleBuffer = SvIV(ST(i));
-					break;
-				case FL_PDSync:
-					fl_iopt.sync = SvIV(ST(i));
-					break;
-				case FL_PDPrivateMap:
-					fl_iopt.privateColormap = SvIV(ST(i));
-					break;
-				case FL_PDLeftScrollBar:
-					fl_iopt.leftScrollBar = SvIV(ST(i));
-					break;
-				case FL_PDPupFontSize:
-					fl_iopt.pupFontSize = SvIV(ST(i));
-					break;
-				case FL_PDButtonFontSize:
-					fl_iopt.buttonFontSize = SvIV(ST(i));
-					break;
-				case FL_PDInputFontSize:
-					fl_iopt.inputFontSize = SvIV(ST(i));
-					break;
-				case FL_PDSliderFontSize:
-					fl_iopt.sliderFontSize = SvIV(ST(i));
-					break;
-				case FL_PDVisual:
-					/* What does this do? */
-					break;
-				case FL_PDULThickness:
-					fl_iopt.ulThickness = SvIV(ST(i));
-					break;
-				case FL_PDULPropWidth:
-					fl_iopt.ulPropWidth = SvIV(ST(i));
-					break;
-				case FL_PDBS:
-					fl_iopt.backingStore = SvIV(ST(i));
-					break;
-				case FL_PDCoordUnit:
-					fl_iopt.coordUnit = SvIV(ST(i));
-					break;
-				case FL_PDDebug:
-					fl_iopt.debug = SvIV(ST(i));
-					break;
-				case FL_PDSharedMap:
-					fl_iopt.sharedColormap = SvIV(ST(i));
-					break;
-				case FL_PDStandardMap:
-					fl_iopt.standardColormap = SvIV(ST(i));
-					break;
-				case FL_PDBorderWidth:
-					fl_iopt.borderWidth = SvIV(ST(i));
-					break;
-				case FL_PDSafe:
-					fl_iopt.safe = SvIV(ST(i));
-					break;
-				case FL_PDMenuFontSize:
-					fl_iopt.menuFontSize = SvIV(ST(i));
-					break;
-				case FL_PDBrowserFontSize:
-					fl_iopt.browserFontSize = SvIV(ST(i));
-					break;
-				case FL_PDChoiceFontSize:
-					fl_iopt.choiceFontSize = SvIV(ST(i));
-					break;
-				case FL_PDLabelFontSize:
-					fl_iopt.labelFontSize = SvIV(ST(i));
-					break;
-				default:
-					croak("fl_set_defaults: invalid default name %lu", def_name);
-					break;
-			}
-
-			def_flags |= def_name;
-		}
-
-		fl_set_defaults(def_flags, &fl_iopt);
-	}
+fl_set_defaults(mask,opts)
+	long		mask
+	FLOpt *		opts
 
 FLForm *
 fl_win_to_form(win)
@@ -4623,6 +5508,15 @@ fl_setpup_default_cursor(int1,int2=0)
 	}
 	OUTPUT:
 	RETVAL
+
+Window
+fl_get_real_object_window(object)
+	FLObject *	object
+
+int
+fl_winreparent(win1,win2)
+	Window		win1
+	Window		win2
 
 Window
 fl_winshow(win)
@@ -4748,11 +5642,6 @@ fl_set_text_clipping(int1,int2,int3=0,int4=0)
 	CODE:
 	{
 		switch (ix) {
-#if FL_INCLUDE_VERSION < 84
-		case 210:
-			not_implemented(GvNAME(CvGV(cv)));
-			break;
-#endif
 		case 0:
 			fl_set_text_clipping(int1,int2,int3,int4);
 			break;
@@ -4769,13 +5658,25 @@ GC
 fl_create_GC()
 	ALIAS:
 		fl_textgc = 1
+		fl_get_gc = 2
 	CODE:
 	{
-		if (ix == 0) 
+		switch (ix) {
+		case 0:
 			RETVAL = XCreateGC(fl_get_display(),
 				   fl_default_window(),0,0);
-		else
+			break;
+		case 1:
 			RETVAL = fl_textgc;
+			break;
+		case 2:
+#if FL_INCLUDE_VERSION >= 87
+			RETVAL = fl_get_gc();
+#else
+			RETVAL = fl_state[fl_vmode].gc[0];
+#endif
+			break;
+		}
 	}
 	OUTPUT:
 	RETVAL
@@ -4791,8 +5692,7 @@ fl_fill_rectangle(win,gc,x,y,xl,yl)
 	int		yl
 	CODE:
 	{
-		XFillRectangle(fl_get_display(),
-			       win, gc, x, y, xl, yl);
+		XFillRectangle(fl_get_display(), win, gc, x, y, xl, yl);
 	}
 
 void
@@ -4805,19 +5705,6 @@ fl_set_background(gc,color)
 		ix ? fl_set_foreground(gc,color) 
 		   : fl_set_background(gc,color);
 
-#if FL_INCLUDE_VERSION == 84
-
-int
-fl_show_choice(line1,value,line4,line5,line6,dflt)
-	char *          line1
-	int             value
-	char *          line4
-	char *          line5
-	char *          line6
-	int		dflt
-
-#else
-
 int
 fl_show_choice(line1,line2,line3,value,line4,line5,line6,value2=0)
 	char *          line1
@@ -4829,19 +5716,10 @@ fl_show_choice(line1,line2,line3,value,line4,line5,line6,value2=0)
 	char *          line6
 	int             value2
 	CODE:
-#if FL_INCLUDE_VERSION >= 85
 		RETVAL = fl_show_choice(line1,line2,line3,
 				value,line4,line5,line6,value2);
-#else
-		RETVAL = fl_show_choice(line1,line2,line3,
-				value,line4,line5,line6);
-#endif
 	OUTPUT:
 	RETVAL
-
-#endif
-
-#if FL_INCLUDE_VERSION >= 85
 
 int
 fl_show_choices(line1,value,line4,line5,line6,dflt)
@@ -4851,8 +5729,6 @@ fl_show_choices(line1,value,line4,line5,line6,dflt)
 	char *          line5
 	char *          line6
 	int		dflt
-
-#endif
 
 void
 fl_remove_fselector_appbutton(string)
@@ -4921,6 +5797,7 @@ fl_add_fselector_appbutton(string,callback,parm)
 		 */
 
 		facb_data        *this,   **prev = get_facb_data(current_fsel);
+		parm = get_a_ref(parm);
 
 		/*
 		 * Now see if this button is already there. If so,
@@ -4955,7 +5832,7 @@ fl_add_fselector_appbutton(string,callback,parm)
 		this->parm = parm;
 
 		fl_add_fselector_appbutton(string,
-					   (callback == NULL ? NULL :
+					   (SvNULL(callback) ? NULL :
 					   process_fselapp_callback),
 					   this);
 	}
@@ -5028,11 +5905,7 @@ fl_pieslice(i1,x,y,xl,yl,i6,i7,c)
 			fl_pieslice(i1,x,y,xl,yl,i6,i7,c);
 			break;
 		case 1:
-#if FL_INCLUDE_VERSION < 84
-			not_implemented("fl_ovalarc");
-#else
 			fl_ovalarc(i1,x,y,xl,yl,i6,i7,c);
-#endif
 			break;
 		}
 	}
@@ -5058,21 +5931,24 @@ fl_polygon(...)
 		fl_polyf = 2
 		fl_polybound = 3
 		fl_lines = 100
+		fl_points = 101
 	CODE:
 	{
 		XPoint  *polypts, *savepts;
 		int     type, i, color, numpts;
-
+#if FL_INCLUDE_VERSION < 87
+		if (ix == 101)
+			not_implemented(GvNAME(CvGV(cv)));
+#endif
 		if (ix == 0) {
 			if (items < 4 || items % 2 != 0)
-				croak("Usage: fl_polygon(type,x,y,...,color)");
+				usage("fl_polygon");
 			i = 1;
 			numpts = (items - 2) / 2;
 			type = SvIV(ST(0));
 		} else {
 			if (items < 3 || (items-1) % 2 != 0)
-				croak("Usage: %s(x,y,...,color)", 
-					GvNAME(CvGV(cv)));
+				usage(GvNAME(CvGV(cv)));
 			i = 0;
 			numpts = (items - 1) / 2;
 			type = ix - 1;
@@ -5097,6 +5973,10 @@ fl_polygon(...)
 			fl_polybound(savepts, numpts, color);
 		else if (ix == 100)
 			fl_lines(savepts,numpts,color);
+#if FL_INCLUDE_VERSION >= 87
+		else if (ix == 101)
+			fl_points(savepts,numpts,color);
+#endif
 		else
 			fl_polygon(type,savepts,numpts,color);
 
@@ -5112,17 +5992,12 @@ void
 fl_interpolate(...)
 	PPCODE:
 	{
-		float           *inx, *iny, outx, outy;
+		float           *inx, *iny, *outx, *outy, temp;
 		int             i, rc, ndeg, numpts;
 		double          grid;
 
-		/*
-		 The doc on this function is scant _ I am assuming
-		 that the output is one integer and two floats.
-		*/
-
 		if (items < 4 || items % 2 != 0)
-			croak("usage: fl_interpolate(x,y,...,grid,ndeg)");
+			usage("fl_interpolate");
 
 		/* The number of points sent */
 		numpts = (items - 2) / 2;
@@ -5134,16 +6009,44 @@ fl_interpolate(...)
 		/* build the point data */
 		build_xyplot_data(&(ST(0)), numpts, &inx, &iny);
 
-		/* Call the function! */
-		rc = fl_interpolate(inx,iny,numpts,&outx,&outy,grid,ndeg);
+		/* Calculate the number of points coming back (as per xforms doc) */
+		temp = ((inx[numpts - 1] - inx[0]) / grid) + 1.01;
+		if ((int)temp < 0)
+			croak("fl_interpolate: data not in ascending order.");	
 
-		/* Now return the list (rc, outx, outy) */
-		EXTEND(sp, 3);
-		PUSHs(sv_2mortal(newSViv(rc)));
-		PUSHs(sv_2mortal(newSVnv(outx)));
-		PUSHs(sv_2mortal(newSVnv(outy)));
+		if ((int)temp > 0)
+		{
+			/* Allocate output area */
+			outx = (float *)calloc(sizeof(float), ((int)temp)*2);
+			outy = outx + (int)temp;
 
-		/* Ok, we're done, lose the area */
+			/* Call the function! */
+			rc = fl_interpolate(inx,iny,numpts,outx,outy,grid,ndeg);
+
+			if (rc > (int)temp)
+				croak("fl_interpolate: too many points returned.");
+
+			/* Now return the list */
+			if (rc > 0)
+			{
+				EXTEND(sp, (rc*2)+1);
+				PUSHs(sv_2mortal(newSViv(rc)));
+				for (i = 0; i < rc; ++i)
+				{
+					PUSHs(sv_2mortal(newSVnv(outx[i])));
+					PUSHs(sv_2mortal(newSVnv(outy[i])));
+				}
+			} 
+			else 
+			{
+				XPUSHs(&sv_undef);
+			}
+			free((void*)outx);
+		}
+		else
+		{
+			XPUSHs(&sv_undef);
+		}
 		free((void*)inx);
 	}
 
@@ -5156,7 +6059,7 @@ fl_set_xyplot_data(object,...)
 		int             i, numpts, xST, yST;
 		char            *str1, *str2, *str3;
 		if (items < 6 || items % 2 != 0)
-			croak("usage: fl_set_xyplot_data(object,x,y,...,label,x-label,y-label)");
+			usage("fl_set_xyplot_data");
 		/* The number of points sent */
 		numpts = (items - 4) / 2;
 
@@ -5169,21 +6072,15 @@ fl_set_xyplot_data(object,...)
 
 		/* build the point data */
 		build_xyplot_data(&(ST(1)), numpts, &xfloat, &yfloat);
-	/*
 
-	fprintf(stderr,"numpts = %i\nstr1 = %s\nstr2 = %s\nstr3 = %s\n", numpts,str1,str2,str3);
-	for (i=0; i<numpts; ++i) {
-		fprintf(stderr,"point %i = %f,%f\n",i, xfloat[i],yfloat[i]);
-	}
-	*/
 		/* call the function */
 		fl_set_xyplot_data(object,xfloat,yfloat,numpts,
 					(const char *)str1,
 					(const char *)str2,
 					(const char *)str3);
 
-		/* Ok, we're done, lose the area and return an empty list*/
-		free((void*)xfloat); 
+		/* Free the data area */
+		free((void *)xfloat);
 	}
 
 void
@@ -5196,17 +6093,18 @@ fl_add_xyplot_overlay(object,overlay_id,...)
 		int     i, numpts, color;
 
 		if (items < 5 || (items-1) % 2 != 0)
-			croak("usage: fl_add_xyplot_overlay(object,ol_id,x,y,...)");
+			usage("fl_add_xyplot_overlay");
 		numpts = (items - 3) / 2;
 		color = SvIV(ST(items-1));
 
-		/* build the point data */
+		/* build the point data AND SAVE IT FOR POSSIBLE _get_ */
 		build_xyplot_data(&(ST(2)), numpts, &xfloat, &yfloat);
 
 		/* call the function */
-		fl_add_xyplot_overlay(object,overlay_id,
-					xfloat,yfloat,numpts,color);
-		free((void*)xfloat);
+		fl_add_xyplot_overlay(object,overlay_id,xfloat,yfloat,numpts,color);
+
+		/* Free the data area */
+		free((void *)xfloat);
 	}
 
 void
@@ -5238,7 +6136,7 @@ fl_set_xyplot_xscale(object,i,d,string="",int2=0)
 		}
 	}
 
-void
+int
 fl_set_xyplot_file(object,filename,title,xlabel="",ylabel="")
 	FLObject *      object
 	const char *    filename
@@ -5246,29 +6144,28 @@ fl_set_xyplot_file(object,filename,title,xlabel="",ylabel="")
 	const char *    xlabel
 	const char *    ylabel
 	ALIAS:
-		fl_set_xyplot_alphaytics = 100
-		fl_set_xyplot_fixed_xaxis = 101
-		fl_set_xyplot_fixed_yaxis = 102
+		fl_set_xyplot_alphaxtics = 100
+		fl_set_xyplot_alphaytics = 101
+		fl_set_xyplot_fixed_xaxis = 102
+		fl_set_xyplot_fixed_yaxis = 103
 	CODE:
 	{
 		switch (ix) {
-#if FL_INCLUDE_VERSION < 84
-		case 100:
-		case 101:
-		case 102:
-			not_implemented(GvNAME(CvGV(cv)));
-			break;
-#endif
 		case 0:
-			fl_set_xyplot_file(object,filename,title,
-				xlabel,ylabel);
+			RETVAL = 
+#if FL_INCLUDE_VERSION < 87
+				0;
+#endif
+				fl_set_xyplot_file(object,filename,title,xlabel,ylabel);
 			break;
 		default:
-			(void_FLO_char_char_funcs[ix-100])(object,
-				filename,title);
+			RETVAL = 0;
+			(void_FLO_char_char_funcs[ix-100])(object,filename,title);
 			break;
 		}
 	}
+	OUTPUT:
+	RETVAL
 
 
 void
@@ -5301,27 +6198,48 @@ fl_set_xyplot_interpolate(object,value1,value2,value3)
 	int             value2
 	double          value3
 
-#if FL_INCLUDE_VERSION < 84
+void
+fl_set_error_logfp_real(fd)
+	int		fd
+	CODE:
+	{
+#if FL_INCLUDE_VERSION >= 87
+		error_log = fdopen(fd, "w");
+        if (error_log == NULL)
+			croak("Failed to create FILE pointer for log file");
 
-void 
+        fl_set_error_logfp(error_log);
+#else
+		croak("fl_set_error_logfp is not implemeted");
+#endif
+	}
+
+#if FL_INCLUDE_VERSION >= 87
+
+void
+fl_set_error_handler(callback)
+	SV *		callback
+	CODE:
+	{
+        savesv(&error_handler, callback);
+        fl_set_error_handler(process_error_handler);
+	}
+
+int 
 fl_add_xyplot_overlay_file(object,int1,string1,col1)
-	FLObject *      object
-	int		int1
+	FLObject *		object
+	int				int1
 	const char *	string1
-	FL_COLOR	col1
+	FL_COLOR		col1
 
 #else
 
-#if XSUBPP_VERSION < 1935
-
-void
-fl_add_xyplot_overlay_file(...)
-	CODE:
-	{
-		croak("fl_add_xyplot_overlay_file not supported");
-	}
-
-#endif
+void 
+fl_add_xyplot_overlay_file(object,int1,string1,col1)
+	FLObject *		object
+	int				int1
+	const char *	string1
+	FL_COLOR		col1
 
 #endif
 
@@ -5335,14 +6253,14 @@ fl_set_glcanvas_defaults(...)
 		int		i;
 
 		if (items < 1)
-    			croak("usage: fl_set_glcanvas_defaults(defaults...)");
+				usage("fl_set_glcanvas_defaults");
 		
 		/*
  		 * Allocate storage and fill it.
 		 */
 		defaults = (int *)calloc(items+1, sizeof(int));
 		for (i = 0; i < items; i++) {
-		    defaults[i] = SvIV(ST(i));
+			defaults[i] = SvIV(ST(i));
 		}
 		defaults[items] = 0;
 		fl_set_glcanvas_defaults(defaults);
@@ -5367,7 +6285,7 @@ fl_get_glcanvas_defaults()
 		EXTEND(sp, i);
 
 		for(i = 0; defaults[i] != 0; i++) {
-		    PUSHs(sv_2mortal(newSViv(defaults[i])));
+			PUSHs(sv_2mortal(newSViv(defaults[i])));
 		}
 	}
 
@@ -5381,13 +6299,13 @@ fl_set_glcanvas_attributes(object,...)
 		int		i;
 
 		if (items < 2)
-    			croak("usage: fl_set_glcanvas_attributes(object,defaults...)");
+				usage("fl_set_glcanvas_attributes");
 		/*
  		 * Allocate storage and fill it.
 		 */
 		defaults = (int *)calloc(items, sizeof(int));
 		for (i = 1; i < items; i++) {
-		    defaults[i-1] = SvIV(ST(i));
+			defaults[i-1] = SvIV(ST(i));
 		}
 		defaults[items-1] = 0;
 		fl_set_glcanvas_attributes(object, defaults);
@@ -5413,7 +6331,7 @@ fl_get_glcanvas_attributes(object)
 
 		/* push all defaults on the stack */
 		for(i = 0; defaults[i] != 0; i++) {
-		    PUSHs(sv_2mortal(newSViv(defaults[i])));
+			PUSHs(sv_2mortal(newSViv(defaults[i])));
 		}
 	}
 
@@ -5423,13 +6341,9 @@ fl_set_glcanvas_direct(object, flag)
 	FLObject *	object
 	int		flag
 
-#if FL_INCLUDE_VERSION >= 86
-
 void
 fl_activate_glcanvas(object)
 	FLObject *	object
-
-#endif
 
 XVisualInfo *
 fl_get_glcanvas_xvisualinfo(object)
@@ -5559,8 +6473,6 @@ MODULE = X11::Xforms	PACKAGE = X11::Xforms::FLForm 	PREFIX = fl_form_
 
 PROTOTYPES: DISABLE
 
-#if FL_INCLUDE_VERSION >= 84
-
 long
 fl_form_u_ldata(...)
 	CODE:
@@ -5570,30 +6482,40 @@ fl_form_u_ldata(...)
 
 		ud = update_field(items);
 		form = (FLForm *)chk_bless(ST(0), X11XformsFLForm);
+		RETVAL = form->u_ldata;
 		if (ud)
 			form->u_ldata = SvIV(ST(1));
-		RETVAL = form->u_ldata;
 	}
 	OUTPUT:
 	RETVAL
-
-#endif
 
 void *
 fl_form_u_vdata(...)
 	CODE:
 	{
-		int		ud;
+		int			rw;
 		FLForm * 	form; 
 
-		ud = update_field(items);
+		rw = update_field(items);
 		form = (FLForm *)chk_bless(ST(0), X11XformsFLForm);
-		if (ud)
-			get_form_data(form)->u_vdata = (void *)SvIV(ST(1));
-		RETVAL = get_form_data(form)->u_vdata;
+		ST(0) = (SV *)get_form_data(form)->u_vdata;
+		if (rw)
+			get_form_data(form)->u_vdata = (void *)(ST(1));
 	}
-	OUTPUT:
-	RETVAL
+
+void *
+fl_form_fdui(...)
+	CODE:
+	{
+		int			rw;
+		FLForm * 	form; 
+
+		rw = update_field(items);
+		form = (FLForm *)chk_bless(ST(0), X11XformsFLForm);
+		ST(0) = (SV *)form->fdui;
+		if (rw)
+			form->fdui = (void *)(ST(1));
+	}
 
 FL_Coord
 fl_form_x(...)
@@ -5607,16 +6529,15 @@ fl_form_x(...)
 	{
 		long	rw;
 		FL_Coord field;
-		int		ud;
 		FLForm * 	form; 
 
-		ud = update_field(items);
+		rw = update_field(items);
 		form = (FLForm *)chk_bless(ST(0), X11XformsFLForm);
-		if (ud)
-			((FLF_ARRAY *)form)->flf_flc[ix] = 
-				(FL_Coord)SvIV(ST(1));
 
 		RETVAL = ((FLF_ARRAY *)form)->flf_flc[ix];
+		if (rw)
+			((FLF_ARRAY *)form)->flf_flc[ix] = 
+				(FL_Coord)SvIV(ST(1));
 	}
 	OUTPUT:
 	RETVAL
@@ -5680,6 +6601,8 @@ fl_form_vmode(...)
 
 char * 
 fl_form_label(...)
+	ALIAS:
+		u_cdata = 1
 	CODE:
 	{
 		int	rw;
@@ -5688,15 +6611,27 @@ fl_form_label(...)
 		rw = update_field(items);
 		form = (FLForm *)chk_bless(ST(0), X11XformsFLForm);
 		
-		if (rw)
-                        form->label = SvPV(ST(1),na);
-
-		RETVAL = form->label;
+		if (ix == 0)
+		{
+			RETVAL = form->label;
+			if (rw)
+				form->label = SvPV(ST(1),na);
+		}
+		else
+#if FL_INCLUDE_VERSION < 87
+			croak("Field \"%s\" not in FL_FORM structure in your version of xforms", GvNAME(CvGV(cv)));
+#else
+		{
+			RETVAL = form->u_cdata;
+			if (rw)
+				form->u_cdata = SvPV(ST(1),na);
+		}
+#endif
 	}
 	OUTPUT:
 	RETVAL
 
-void
+FLObject *
 fl_form_first(form)
 	FLForm *	form
 	ALIAS:
@@ -5704,33 +6639,27 @@ fl_form_first(form)
 		focusobj = 2
 	CODE:
 	{
-		ST(0) = bless_object(((FLF_ARRAY *)form)->flf_flo[ix]);
+		RETVAL = (((FLF_ARRAY *)form)->flf_flo[ix]);
+		if (RETVAL == NULL)
+			ST(0) = &sv_undef;
+		else
+			ST(0) = bless_object(RETVAL);			
 	}
 
 MODULE = X11::Xforms	PACKAGE = X11::Xforms::FLObject 	PREFIX = fl_object_
 
 PROTOTYPES: DISABLE
 
-void
+FLForm *
 fl_object_form(object)
 	FLObject *	object
-	ALIAS:
-		prev = 1
-		next = 2
 	CODE:
 	{
-		switch(ix) {
-
-		case 0:
-			ST(0) = bless_form(object->form);
-			break;
-		case 1:
-			ST(0) = bless_object(object->prev);
-			break;
-		case 2:
-			ST(0) = bless_object(object->next);
-			break;
-		}
+		RETVAL = object->form;
+		if (RETVAL == NULL)
+			ST(0) = &sv_undef;
+		else
+			ST(0) = bless_form(RETVAL);			
 	}
 
 long
@@ -5744,9 +6673,9 @@ fl_object_u_ldata(object,...)
 		rw = update_field(items);
 		object = (FLObject *)chk_bless(ST(0), X11XformsFLObject);
 		
+		RETVAL = object->u_ldata;
 		if (rw)
 			object->u_ldata = SvIV(ST(1));
-		RETVAL = object->u_ldata;
 	}
 	OUTPUT:
 	RETVAL
@@ -5761,12 +6690,10 @@ fl_object_u_vdata(...)
 		rw = update_field(items);
 		object = (FLObject *)chk_bless(ST(0), X11XformsFLObject);
 		
+		ST(0) = (SV *)get_object_data(object)->u_vdata;
 		if (rw)
-			get_object_data(object)->u_vdata = (void *)SvIV(ST(1));
-		RETVAL = get_object_data(object)->u_vdata;
+			get_object_data(object)->u_vdata = (void *)(ST(1));
 	}
-	OUTPUT:
-	RETVAL
 
 FL_Coord
 fl_object_x(...)
@@ -5777,18 +6704,17 @@ fl_object_x(...)
 		bw = 4
 	CODE:
 	{
-                FL_Coord field;
-                int     rw;
+				FL_Coord field;
+				int     rw;
 		FLObject * 	object; 
 
 		rw = update_field(items);
 		object = (FLObject *)chk_bless(ST(0), X11XformsFLObject);
 		
+		RETVAL = ((FLO_ARRAY *)object)->flo_flc[ix];
 		if (rw)
 			((FLO_ARRAY *)object)->flo_flc[ix] =
-                        	(FL_Coord)SvIV(ST(1));
-
-		RETVAL = ((FLO_ARRAY *)object)->flo_flc[ix];
+							(FL_Coord)SvIV(ST(1));
 	}
 	OUTPUT:
 	RETVAL
@@ -5798,19 +6724,29 @@ fl_object_col1(...)
 	ALIAS:
 		col2 = 1
 		lcol = 2
+		aux_col1 = 3
+		aux_col2 = 4
+		dbl_background = 5
 	CODE:
 	{
-                FL_COLOR field;
-                int     rw;
+				FL_COLOR field;
+				int     rw;
 		FLObject * 	object; 
 
 		rw = update_field(items);
 		object = (FLObject *)chk_bless(ST(0), X11XformsFLObject);
 		
 		if (rw)
-                        field = (FL_COLOR)SvIV(ST(1));
+			field = (FL_COLOR)SvIV(ST(1));
 
 		switch (ix) {
+#if FL_INCLUDE_VERSION < 87
+		case 3:
+		case 4:
+		case 5:
+			croak("Field \"%s\" not in FL_OBJECT structure in your version of xforms", GvNAME(CvGV(cv)));
+			break;
+#endif
 		case 0:
 			ObjRWfld(object->col1);
 			break;
@@ -5820,6 +6756,17 @@ fl_object_col1(...)
 		case 2:
 			ObjRWfld(object->lcol);
 			break;
+#if FL_INCLUDE_VERSION >= 87
+		case 3:
+			ObjRWfld(object->aux_col1);
+			break;
+		case 4:
+			ObjRWfld(object->aux_col2);
+			break;
+		case 5:
+			ObjRWfld(object->dbl_background);
+			break;
+#endif
 		}
 	}
 	OUTPUT:
@@ -5827,18 +6774,32 @@ fl_object_col1(...)
 
 char *
 fl_object_label(...)
+	ALIAS:
+		u_cdata	= 1
 	CODE:
 	{
-                int     rw;
+				int     rw;
 		FLObject * 	object; 
 
 		rw = update_field(items);
 		object = (FLObject *)chk_bless(ST(0), X11XformsFLObject);
 		
-		if (rw)
-                        object->label = SvPV(ST(1),na);
-
-		RETVAL = object->label;
+		if (ix == 0)
+		{
+			RETVAL = object->label;
+			if (rw)
+				object->label = SvPV(ST(1),na);
+		}
+		else
+#if FL_INCLUDE_VERSION < 87
+			croak("Field \"%s\" not in FL_OBJECT structure in your version of xforms", GvNAME(CvGV(cv)));
+#else
+		{
+			RETVAL = object->u_cdata;
+			if (rw)
+				object->u_cdata = SvPV(ST(1),na);
+		}
+#endif
 	}
 	OUTPUT:
 	RETVAL
@@ -5853,19 +6814,38 @@ fl_object_window(object)
 	OUTPUT:
 	RETVAL
 
-long
-fl_object_pushed(...)
+FLObject *
+fl_prev(object)
+	FLObject *	object
 	ALIAS:
-		focus = 1
-		belowmouse = 2
-		active = 3
-		input = 4
-		wantkey = 5
-		radio = 6
-		automatic = 7
-		redraw = 8
-		visible = 9
-		clip = 10
+        next = 1
+		parent = 2
+		child = 3
+		nc = 4
+	CODE:
+	{
+		RETVAL = (((FLO_ARRAY *)object)->flo_obj[ix]);
+		if (RETVAL == NULL)
+			ST(0) = &sv_undef;
+		else
+			ST(0) = bless_object(RETVAL);			
+	}
+
+long
+fl_use_pixmap(...)
+	ALIAS:
+        double_buffer = 1
+		object_pushed = 2
+		focus = 3
+		belowmouse = 4
+		active = 5
+		input = 6
+		wantkey = 7
+		radio = 8
+		automatic = 9
+		redraw = 10
+		visible = 11
+		clip = 12
 		resize = 100
 		nwgravity = 101
 		segravity = 102
@@ -5877,33 +6857,35 @@ fl_object_pushed(...)
 		lstyle = 302
 		click_timeout = 400
 		argument = 401
-		double_buffer = 402
-		use_pixmap = 403
+		how_return = 404
 	CODE:
 	{
 		long	field;
-                int     rw;
+				int     rw;
 		FLObject * 	object; 
 
 		rw = update_field(items);
 		object = (FLObject *)chk_bless(ST(0), X11XformsFLObject);
-		
 		if (rw)
 			field = SvIV(ST(1));
 
 		switch (ix) {
+#if FL_INCLUDE_VERSION < 87
+		case 404:
+			croak("Field \"%s\" not in FL_OBJECT structure in your version of xforms", GvNAME(CvGV(cv)));
+			break;
+#endif
 		case 400:
 			ObjRWfld(object->click_timeout);
 			break;
 		case 401:
 			ObjRWfld(object->argument);
 			break;
-		case 402:
-			ObjRWfld(object->double_buffer);
+#if FL_INCLUDE_VERSION >= 87
+		case 404:
+			ObjRWfld(object->how_return);
 			break;
-		case 403:
-			ObjRWfld(object->use_pixmap);
-			break;
+#endif
 		case 300:	
 		case 301:	
 		case 302:	
@@ -5946,18 +6928,12 @@ fd_fsel_fselect(fsel)
 	CODE:
 	{
 		void *	form_obj;
-#if FL_INCLUDE_VERSION < 84
-		if (ix == 9 || ix == 10)
-			croak("Field \"%s\" not in FD_FSELECTOR structure in your version of xforms", GvNAME(CvGV(cv)));
-#endif
 		form_obj = ((FD_FSEL_ARRAY *)fsel)->fsel_ob[ix];
 		if (ix == 0) 
 			ST(0) = bless_form((FLForm *)form_obj);
 		else
 			ST(0) = bless_object((FLObject *)form_obj);
 	}
-
-#if FL_INCLUDE_VERSION >= 84
 
 void
 fd_fsel_appbutts(fsel)
@@ -5977,11 +6953,7 @@ fd_fsel_appbutts(fsel)
 		}
 	}
 
-#endif
-		
 MODULE = X11::Xforms	PACKAGE = X11::Xforms::FDCmdlog 	PREFIX = fd_cmdlog_
-
-#if FL_INCLUDE_VERSION >= 84
 
 void
 fd_cmdlog_form(cmdlog)
@@ -5999,12 +6971,10 @@ fd_cmdlog_form(cmdlog)
 			ST(0) = bless_object((FLObject *)form_obj);
 	}
 
-#endif
-
 MODULE = X11::Xforms	PACKAGE = X11::Xforms::FLOpt 	PREFIX = fl_opt_
 
 FLOpt *
-fl_opt_new()
+fl_opt_new(...)
 	CODE:
 	{
 		RETVAL = (FL_IOPT *)calloc(1, sizeof(FL_IOPT));
@@ -6027,7 +6997,7 @@ fl_opt_gamma(...)
 		float	rgamma, ggamma, bgamma;
 		FLOpt *		opt;
 		if (items != 4 && items != 1)
-			croak("usage: $oopt->gamma to read, or $opt->gamma($r, $g, $b) to write");
+			usage("Structure field access");
 		opt = (FLOpt *)chk_bless(ST(0), X11XformsFLOpt);
 		if (items == 4) {
 			opt->rgamma = SvNV(ST(1));
@@ -6063,6 +7033,8 @@ fl_opt_debug(...)
 		sharedColormap = 17
 		standardColormap = 18
 		leftScrollBar = 19
+		thinScrollBar = 19 
+		scrollbarType = 19 
 		backingStore = 20
 		coordUnit = 21
 		borderWidth = 22
@@ -6070,21 +7042,16 @@ fl_opt_debug(...)
 		xFirst = 24
 	CODE:
 	{
-                int     rw;
+		int     rw;
 		FLOpt * opt; 
-#if FL_INCLUDE_VERSION < 84
-		if (ix == 24)
-			croak("xFirst was removed from FL_IOPT in Xforms 0.84");
-#endif
 
 		rw = update_field(items);
 		opt = (FLOpt *)chk_bless(ST(0), X11XformsFLOpt);
 		
+		RETVAL = ((FL_IOPT_ARRAY *)opt)->opt_int[ix];
 		if (rw)
 			((FL_IOPT_ARRAY *)opt)->opt_int[ix] =
 				SvIV(ST(1));
-
-		RETVAL = ((FL_IOPT_ARRAY *)opt)->opt_int[ix];
 	}
 	OUTPUT:
 	RETVAL
@@ -6095,20 +7062,20 @@ fl_opt_rgbfile(...)
 		vname = 1
 	CODE:
 	{
-                int     rw;
+				int     rw;
 		FLOpt * opt; 
 
 		rw = update_field(items);
 		opt = (FLOpt *)chk_bless(ST(0), X11XformsFLOpt);
 		
 		if (ix == 0) {
+			RETVAL = opt->rgbfile;
 			if (rw)
 				opt->rgbfile = SvPV(ST(1),na);
-			RETVAL = opt->rgbfile;
 		} else {
+			RETVAL = opt->vname;
 			if (rw)
 				memcpy(opt->vname,SvPV(ST(1),na),24);
-			RETVAL = opt->vname;
 		}
 	}
 	OUTPUT:
@@ -6116,10 +7083,8 @@ fl_opt_rgbfile(...)
 
 MODULE = X11::Xforms	PACKAGE = X11::Xforms::FLEditKeymap 	PREFIX = fl_key_
 
-#if FL_INCLUDE_VERSION >= 85
-
 FLEditKeymap *
-fl_key_new()
+fl_key_new(...)
 	CODE:
 	{
 		RETVAL = (FL_EditKeymap *)calloc(1, sizeof(FL_EditKeymap));
@@ -6154,20 +7119,16 @@ fl_key_del_prev_char(...)
 		del_to_eos   	= 23
 	CODE:
 	{
-                int     rw;
+				int     rw;
 		FLEditKeymap *	keymap;
 
 		rw = update_field(items);
 		keymap = (FLEditKeymap *)chk_bless(ST(0),X11XformsFLEditKeymap);
 		
+		RETVAL = ((FL_KEYMAP_ARRAY *)keymap)->keymap_long[ix];
 		if (rw) 
 			((FL_KEYMAP_ARRAY *)keymap)->keymap_long[ix] =
 				SvIV(ST(1));
-
-		RETVAL = ((FL_KEYMAP_ARRAY *)keymap)->keymap_long[ix];
 	}
 	OUTPUT:
 	RETVAL
-
-#endif
-

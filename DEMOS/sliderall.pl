@@ -1,7 +1,7 @@
 #!/usr/bin/perl
+use X11::Xforms;
 # /* This demo shows the different types of sliders */
 
-use  X11::Xforms;
 #use  Forms_VAL_OBJS;
 
 $form = "";

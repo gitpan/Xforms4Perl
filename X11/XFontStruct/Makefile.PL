@@ -30,7 +30,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'	=> 'X11::XFontStruct',
     'VERSION_FROM'	=> 'XFontStruct.pm',
-    'LIBS'	=> ['-L/usr/X11/lib -lX11'],   # e.g., '-lm' 
+    'LIBS'	=> ['-L/usr/X11R6/lib -lX11'],   # e.g., '-lm' 
     'DEFINE'	=> '',     # e.g., '-DHAVE_SOMETHING' 
     'INC'	=> ''      # e.g., '-I/usr/include/other' 
 );
@@ -41,6 +41,7 @@ sub MY::dynamic_lib {
     	my $lk=$self->MM::dynamic_lib;
 	my $strip = "strip";
 	$strip = "strip -f" if ($Config::Config{osname} =~ /irix/);
+	$strip = "true"     if ($Config::Config{osname} =~ /sunos/);
     	$lk . "\t$strip \$@\n";
 }
 

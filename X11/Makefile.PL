@@ -26,5 +26,5 @@ WriteMakefile(
        INC => '',
        LIBS => '',
        NAME => 'X11',
-       VERSION_FROM => 'Xforms/Xforms.pm'
+       VERSION_FROM => 'Xforms/Xforms.pm.skel'
 );

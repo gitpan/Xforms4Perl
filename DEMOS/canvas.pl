@@ -42,7 +42,7 @@ $canvasGC = "";
 sub canvas_expose
 {
     my($ob, $win, $w, $h, $ev, $d) = @_;
-    fl_fill_rectangle($win, $canvasGC, 0, 0, $w, $h);
+    fl_rectf($ob->x, $ob->y, $w, $h, FL_BLACK);
     fl_addto_browser($br, "Expose");
     return 0;
 }

@@ -65,10 +65,10 @@ sub create_form {
   $br[1] = $obj = fl_add_browser(FL_SELECT_BROWSER,190,120,150,290,$bnames[1]);
     fl_set_object_callback($obj, "br_callback", 1);
   $br[2] = $obj = fl_add_browser(FL_HOLD_BROWSER,360,120,150,290,$bnames[2]);
-    fl_set_object_color($obj,FL_COL1,FL_GREEN);
+    fl_set_object_color($obj,$obj->col1,FL_GREEN);
     fl_set_object_callback($obj, "br_callback", 2);
   $br[3] = $obj = fl_add_browser(FL_MULTI_BROWSER,530,120,150,290,$bnames[3]);
-    fl_set_object_color($br[3],FL_COL1,FL_CYAN);
+    fl_set_object_color($br[3],$obj->col1,FL_CYAN);
     fl_set_object_callback($obj, "br_callback", 3);
 
   $exitobj = $obj = fl_add_button(FL_NORMAL_BUTTON,560,510,120,30,"Exit");

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -Tw
+#!/usr/bin/perl -w
 # /* This demo shows the use of special symbol labels */
 
 use X11::Xforms;

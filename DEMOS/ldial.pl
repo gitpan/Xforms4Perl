@@ -19,9 +19,9 @@ $ret = "";
     $b =  fl_get_dial_value($blue);
     fl_mapcolor(FL_FREE_COL1,$r,$g,$b);
     fl_redraw_object($result);
-    fl_set_object_label($redtext,int($r));
-    fl_set_object_label($greentext,int($g));
-    fl_set_object_label($bluetext,int($b));
+    fl_set_object_label($redtext,sprintf("%X", int($r)));
+    fl_set_object_label($greentext,sprintf("%X", int($g)));
+    fl_set_object_label($bluetext,sprintf("%X", int($b)));
     $ret = fl_do_forms();
   } 
   fl_hide_form($form);
