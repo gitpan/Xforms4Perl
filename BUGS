@@ -10,8 +10,3 @@ one who has experienced this. I would be VERY interested with news from anyone
 else who can make it happen. I do it be running the xyplotall.pl demo an number
 of times consecutively.
 
-xforms 0.85 appears to delay the filling of browser data until the browser is 
-screen is full and a scroll bar is added. This makes browserop.pl and
-canvas.pl demos appear to not work until they have received a great deal of 
-input - then they spring into action. This also occurs with the C versions
-of these demos and, so, is considered to be a bug in xforms.

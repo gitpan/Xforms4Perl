@@ -20,7 +20,7 @@ use ExtUtils::MakeMaker;
 # the contents of the Makefile that is written.
 WriteMakefile(
     'NAME'	=> 'XFontStruct',
-    'VERSION'	=> '0.5',
+    'VERSION'	=> '0.6',
     'LIBS'	=> ['-L/usr/X11/lib -lX11'],   # e.g., '-lm' 
     'DEFINE'	=> '',     # e.g., '-DHAVE_SOMETHING' 
     'INC'	=> ''      # e.g., '-I/usr/include/other' 

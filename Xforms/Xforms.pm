@@ -34,6 +34,7 @@ fl_XPutBackEvent
 fl_activate_all_forms
 fl_activate_event_callbacks
 fl_activate_form
+fl_activate_glcanvas
 fl_activate_object
 fl_add_bitmap
 fl_add_bitmapbutton
@@ -233,6 +234,7 @@ fl_get_choice_text
 fl_get_clock
 fl_get_command_log_fdstruct
 fl_get_coordunit
+fl_get_counter_bounds
 fl_get_counter_value
 fl_get_cursor_byname
 fl_get_defaults
@@ -582,6 +584,7 @@ fl_set_pixmapbutton_align
 fl_set_pixmapbutton_data
 fl_set_pixmapbutton_datafile
 fl_set_pixmapbutton_file
+fl_set_pixmapbutton_focus_outline
 fl_set_pixmapbutton_pixmap
 fl_set_positioner_return
 fl_set_positioner_xbounds
@@ -1432,8 +1435,7 @@ bootstrap Xforms;
    *FL_PIXMAPBUTTON_COL2 = *FL_PseudoColor = *FL_RELEASE = *FL_RESIZE_ALL =
    *FL_RETURN_ALWAYS = *FL_ROUNDBUTTON = *FL_ROUNDBUTTON_COL2 = *FL_SLIDER_BW1 =
    *FL_TEXTBOX_COL2 = *FL_YELLOW = \&FL_CON_3;
-*FL_MAXFONTS = *FL_MAX_XYPLOTOVERLAY = *FL_PDPrivateMap = \&FL_CON_32;
-   *FL_PLACE_ASPECT = \&FL_CON_32;
+*FL_MAX_XYPLOTOVERLAY = *FL_PDPrivateMap = *FL_PLACE_ASPECT = \&FL_CON_32;
 *FL_FIX_SIZE = *FL_PDCoordUnit = \&FL_CON_32768;
 *FL_ALIGN_LEFT = *FL_ALL_FREE = *FL_BITMAPBUTTON_COL2 = *FL_BLUE =
    *FL_CHOICE_ALIGN = *FL_COORD_centiPOINT = *FL_COUNTER_COL2 = *FL_ENTER =
@@ -1474,7 +1476,11 @@ bootstrap Xforms;
 my($ver_rev, $ver, $rev) = fl_library_version();
 
 if ($ver_rev >= 84) {
-
+	if ($ver_rev >= 86) {
+		*FL_MAXFONTS = \&FL_CON_48;
+	} else {
+		*FL_MAXFONTS = \&FL_CON_32;
+	}
 	if ($ver_rev >= 85) {
 		*FL_SLIDER_NONE = \&FL_CON_0;
 		*FL_SLIDER_BOX = \&FL_CON_1;
@@ -1508,7 +1514,6 @@ if ($ver_rev >= 84) {
 		*FL_GLCANVAS = \&FL_CON_29;
 		*FL_IMAGECANVAS = \&FL_CON_30;
 		*FL_FOLDER = \&FL_CON_31;
-
 	} else {
 		*FL_ALT_VAL = \&FL_CON_131072;
 		*FL_MBUTTON1 = \&FL_CON_0;
@@ -1579,9 +1584,8 @@ if ($ver_rev >= 84) {
 	*FL_VERT_BROWSER_SLIDER = \&FL_CON_7;
 	*FL_VERT_BROWSER_SLIDER2 = \&FL_CON_9;
 	*FL_XYPLOT = \&FL_CON_25;
-
 } else {
-
+	*FL_MAXFONTS = \&FL_CON_32;
 	*FL_ALT_VAL = \&FL_CON_131072;
 	*FL_ALWAYS_ON = \&FL_CON_2;
 	*FL_BITMAP = \&FL_CON_7; 

@@ -25,9 +25,9 @@ are unashamedly plagerised from the Xforms DEMOS directory. The inspiration
 for this project is also included - XFtool, an 'MS Office'-like toolbar -
 as are a couple of other useful applications developed using the package. 
 
-This is the fifth release of the extension and operates with the 0.81 public 
-release and the 0.84 and 0.85 testing releases of the Xforms library. It 
-requires at least Perl 5.002.
+This is the fifth release of the extension and operates with the 0.81 and 0.86
+public releases, and the 0.84 and 0.85 testing releases of the Xforms library. 
+It requires at least Perl 5.002.
 
 Please consider this an Alpha release - that is, it's a release that may cause
 you to 'alf-beat your head on a hard spiky object! I have not tested EVERY 
@@ -35,10 +35,12 @@ function. As releases pile up on each other this becomes less and less of a
 'good-thing' since now most of the functions are definately NOT implemented 
 with bog-standard XSUB code. 
 
+THIS IS THE LAST RELEASE TO SUPPORT 0.81 thru 0.85.
+
 *** WHAT'S IMPLEMENTED
 
-Almost everything in Xforms 0.81,  0.84 and 0.85! From basic forms to XEvent 
-processing, from GL canvases to XY plots. There is a file, 
+Almost everything in Xforms 0.81,  0.84, 0.85 and 0.86! From basic forms to 
+XEvent processing, from GL canvases to XY plots. There is a file, 
 Xforms.not_implemented that covers whats NOT here - and why.
 
 For the most part, the functions have the same protocols from Perl as they do
@@ -101,12 +103,12 @@ for symbolic constants.
 	. Extensive write access added to fields of FL_OBJECT and FL_FORM.
 	. Pixmap and bitmap data support added
 	. 0.84 and 0.85 changes and additions 
-	. Forms 0.81, 0.84, and 0.85 supported (recompile required on change)
-	  with constant values reflecting the correct version (yes some did
-	  change their values between versions!)
+	. Forms 0.81, 0.84, 0.85 and 0.86 supported (recompile required on 
+	  version change) with constant values reflecting the correct version 
+	  (yes some did change their values between versions!)
 	. Old cnvrtfd.pl fdesign file converter modified to be a valid
 	  fdesign filter, and renamed to fd2perl.
-	. Conversion routine to move 0.4 scripts to 0.5 added.
+	. Conversion routine to move 0.4 scripts to 0.6 added.
 
 *** WHAT IMPROVED BETWEEN THE FIRST CUT AND VERSION 0.4
 
@@ -178,7 +180,11 @@ directory:
 			     #	   ./blib/auto/Forms/.packlist: No such file 
 			     #	   or directory
 			     # does not seem to occur at Perl 5.002 and above
-			     # Ignore duplicate alias warnings
+			     # Ignore warning messages of the form:
+			     #	   'Warning: Aliases...'
+			     # These come from the xsubp compiler. I'm afraid I
+			     # deliberately use duplicate aliases to implement
+			     # some #define C aliases.
 
 	4) make install	     # To install the extension.
 
@@ -187,7 +193,7 @@ Then,
         5) cp fd2perl ...    # Where ... is a deirectory that is in your
 			     # PATH when you run fdesign
 
-	6) Convert you Xforms4Perl 0.4 scripts to 0.5 (see below)
+	6) Convert you Xforms4Perl 0.4 scripts to 0.6 (see below)
 
 If you want minimum size then, before step four, locate the .so files in
 the blib/arch/auto/<package name> subdirectory of each directory, and execute
@@ -208,7 +214,7 @@ want to look at the results once it has finished - you should!
 
 Note that the script also performs the 'strip' step mentioned above.
 
-*** HOW TO CONVERT Xforms4Perl 0.4 SCRIPTS TO Xforms4Perl 0.5
+*** HOW TO CONVERT Xforms4Perl 0.4 SCRIPTS TO Xforms4Perl 0.6
 
 There's not much to do - just remove all
 
@@ -259,7 +265,7 @@ package.
 *** DEVELOPMENT DETAILS
 
 This version was developed on an IBM Thinkpad 760ED running Linux 2.0.28
-from RedHat, X11R6, the Xforms Library 0.81 and Perl 5.003. It should work 
+from RedHat, X11R6, the Xforms Library 0.81-to-6 and Perl 5.003. It should work 
 on any version of Linux that runs other Xforms applications and Perl 5.002
 and above. It should also run on any Unix system that can run Xforms and 
 Perl 5.002 and above, or at least be reasonably easy to port.

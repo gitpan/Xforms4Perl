@@ -312,7 +312,10 @@ static DblDblFLOFunc	dbl_dbl_FLO_funcs[] = {
 		fl_get_dial_bounds,
 		fl_get_positioner_xbounds,
 		fl_get_positioner_ybounds,
-		fl_get_slider_bounds
+		fl_get_slider_bounds,
+#if FL_INCLUDE_VERSION >= 86
+		fl_get_counter_bounds
+#endif 
 };
 
 typedef double (*DblFLOFunc)(FL_OBJECT *);
@@ -472,7 +475,10 @@ static VoidFLOIntFunc	void_FLO_int_funcs[] = {
 		fl_set_timer_countup,
 		fl_set_xyplot_xgrid,
 		fl_set_xyplot_ygrid,
-		fl_set_browser_hscrollbar
+		fl_set_browser_hscrollbar,
+#endif
+#if FL_INCLUDE_VERSION >= 86
+		fl_set_pixmapbutton_focus_outline
 #endif
 };
 
@@ -2455,9 +2461,9 @@ fl_default_window()
 		fl_bgnpolygon = 113
 		fl_endclosedline = 114
 		fl_endpolygon = 115
-		fl_hide_fselector = 117
-		fl_hide_command_log = 118
-		fl_clear_command_log = 119
+		fl_hide_fselector = 116
+		fl_hide_command_log = 117
+		fl_clear_command_log = 118
 	PPCODE:
 	{
 		Window		win;
@@ -3362,6 +3368,7 @@ fl_get_object_position(object,place=0,str="")
 		fl_set_xyplot_xgrid = 259
 		fl_set_xyplot_ygrid = 260
 		fl_set_browser_hscrollbar = 261
+		fl_set_pixmapbutton_focus_outline = 262
 		fl_insert_browser_line = 300
 		fl_replace_browser_line = 301
 		fl_replace_choice = 302
@@ -3408,6 +3415,8 @@ fl_get_object_position(object,place=0,str="")
 		object_data *   ob_data;
 
 	switch (ix) {
+#if FL_INCLUDE_VERSION < 86
+		case 262:
 #if FL_INCLUDE_VERSION < 85
 		case 523:
 		case 252:
@@ -3432,6 +3441,7 @@ fl_get_object_position(object,place=0,str="")
 		case 520:
 		case 521:
 		case 522:
+#endif
 #endif
 			not_implemented(GvNAME(CvGV(cv)));
 			break;
@@ -3662,6 +3672,7 @@ fl_get_xyplot(object)
 		fl_get_positioner_xbounds = 101
 		fl_get_positioner_ybounds = 102
 		fl_get_slider_bounds = 103
+		fl_get_counter_bounds = 104
 		fl_get_xyplot_xbounds = 200
 		fl_get_xyplot_xmapping = 201
 		fl_get_xyplot_ybounds = 202
@@ -3680,6 +3691,14 @@ fl_get_xyplot(object)
 		int	int1, int2;
 
 		switch (ix) {
+#if FL_INCLUDE_VERSION < 86
+		case 104:
+#if FL_INCLUDE_VERSION < 84
+		case 400:
+#endif
+			not_implemented(GvNAME(CvGV(cv)));
+			break;
+#endif
 		case 0:
 		case 1:
 			if (ix == 0)
@@ -3692,16 +3711,14 @@ fl_get_xyplot(object)
 			PUSHs(sv_2mortal(newSVnv(float2)));
 			PUSHs(sv_2mortal(newSViv(int1)));
 			break;
+#if FL_INCLUDE_VERSION >= 84
 		case 400:
-#if FL_INCLUDE_VERSION < 84
-			not_implemented("fl_get_input_format");
-#else
 			fl_get_input_format(object,&int1,&int2);
 			EXTEND(sp, 2);
 			PUSHs(sv_2mortal(newSViv(int1)));
 			PUSHs(sv_2mortal(newSViv(int2)));
-#endif
 			break;
+#endif
 		default:
 			if (ix >= 300){
 				value1 = (dbl_FLO_funcs[ix-300])(object);
@@ -5387,6 +5404,14 @@ fl_set_glcanvas_direct(object, flag)
 	FLObject *	object
 	int		flag
 
+#if FL_INCLUDE_VERSION >= 86
+
+void
+fl_activate_glcanvas(object)
+	FLObject *	object
+
+#endif
+
 XVisualInfo *
 fl_get_glcanvas_xvisualinfo(object)
 	FLObject *	object
@@ -5427,6 +5452,7 @@ fl_set_glcanvas_defaults(...)
 		fl_get_glcanvas_context = 8
 		fl_glwincreate = 9
 		fl_glwinopen = 10
+		fl_activate_glcanvas = 11
 	CODE:
 	{
 		croak("Xforms4Perl OpenGL functions are not installed.");

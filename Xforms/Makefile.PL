@@ -41,5 +41,5 @@ WriteMakefile(
        INC => '',
        LIBS => [ '-L/usr/X11/lib -lforms -lX11 -lXpm -lm' ],
        NAME => 'Xforms',
-       VERSION => '0.5'
+       VERSION => '0.6'
 );

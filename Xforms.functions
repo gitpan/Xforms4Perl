@@ -73,7 +73,7 @@ GENERAL NOTES:
 
 	Call protocols, where not specifically detailed below, conform to the
 	version of xforms you are using. So, for example, if you use
-	fl_show_choice with 0.81 and then change to 0.85, you will have to
+	fl_show_choice with 0.81 and then change to 0.86, you will have to
 	change your perl script to use the new protocol for that function.
 
 ACCESSING XFORMS DATA STRUCTURE FIELDS
@@ -811,6 +811,7 @@ SPECIFIC OBJECT FUNCTIONS
 
 		fl_set_pixmapbutton_datafile
 		fl_set_pixmapbutton_file
+0.86		fl_set_pixmapbutton_focus_outline
 		fl_set_pixmapbutton_pixmap
 
 	CANVASES
@@ -836,6 +837,7 @@ SPECIFIC OBJECT FUNCTIONS
 
 	OPEN_GL CANVASES
 
+0.86		fl_activate_glcanvas
 		fl_add_glcanvas
 		fl_create_glcanvas
 		fl_get_glcanvas_attributes
@@ -902,6 +904,7 @@ SPECIFIC OBJECT FUNCTIONS
 
 		fl_add_counter
 		fl_create_counter
+0.86		fl_get_counter_bounds
 		fl_get_counter_value
 		fl_set_counter_bounds
 		fl_set_counter_filter
