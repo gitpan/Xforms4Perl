@@ -1,0 +1,72 @@
+These functions have not been implemented for various reasons, explained
+below. users ideas and/or suggestions and/or advice on overcoming the
+stated problems are welcome:
+
+	fl_add/create_mesacanvas
+
+		Since this doesn't get compiled into the XForms distribution
+		it is not included in the package.
+
+	fl_add_symbol/fl_draw_symbol
+
+		Due to the way the package handles callbacks (by registering
+		a generic routine and saving off the Perl callback in an
+		easy to find location) it is essential that the callback
+		itself provide some means of finding where the Perl
+		routine address is held. add_symbol/draw_symbol does not.
+		If the text of the symbol provided on the add_symbol call
+		were returned on the callback call then all would be well.
+		Or, if the callback accepted a pointer to a user parm then
+		we could use that instead (see how fl_selector app_buttons
+		are handled for that technique). But alas not. Therefore no
+		symbol stuff.
+
+	fl_setpup_itemcb/fl_setpup_menucb
+
+		Similar problems - no way to tell the difference between
+		a callback from a menu and a callback from an item (or,
+		more specifically, to distinguish what menu an item callback
+		came from). That probably makes the rest of the popup stuff
+		pointless - but its all there anyway.
+
+	fl_get_vn_value/fl_get_vn_name
+
+		esoteric and probably not applicable to Perl, since hashes
+		acheive the same.
+
+	fl_free/malloc/calloc/realloc
+
+		No use in perl
+
+	fl_set_canvas_attributes
+
+		Well, ok, its there - but you will need to do some hefty
+		stuff to build the XSetWindowAttributes structure and send
+		its address to me!
+ 
+	Functions pertaining to bitmap DATA, pixmap DATA or pixmap structures
+
+		A case where these would need a lot of work for very little
+		need. NOTE THAT BITMAP/PIXMAP FILES ARE SUPPORTED
+
+	Anything that messes with fontstructs
+
+		HEY: I'm moving my family to Paris - I didn't have time to
+		study up on this! But its probably just a case of an 
+		XFontStructPtr class being built in the same way I did
+		XEvent.
+
+	The file sys stuff (such as dirlist filter stuff)
+
+		Same answer as with fonstructs - but this is easily supported
+		by base Perl anyway.
+
+	Anything that messes with fl resource structures
+
+		Same answer as with fonstructs
+
+	C Macros that don't more-or-less map to C functions
+
+		Same answer as previous - but more to do with time and eventual
+		package size!
+

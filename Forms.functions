@@ -1,0 +1,878 @@
+These are the functions that the Forms extension to PERL implements. 
+They are grouped by general functionality and by perl module. There is another
+file, Forms.all_functions, that is an alphabetical list of all functions with
+the perl module that implements each indicated. Use that file to find out
+what perl module you need to 'use' for a particular function. Use this file
+to verify that function's call protocol.
+
+Where the protocol is the same from PERL as from C there is no comment. This
+is the case with a majority of the functions. Where there are differences I
+have indicated the PERL protocol to use. All parameters are PERL scalars
+set to their intuitive values, and all return values (except where indicated)
+are also scalars, set in such a way that, if they are used in further Forms
+functions they behave as expected.
+
+Some functions can accept variable length parameter lists (generally where
+the corresponding C function accepts a pointer to a list of values). These
+functions are indicated below with the optional parts of the parameter lists
+enclosed in square brackets. The square brackets themseleves are NOT required
+as part of the parameter lists, they are only there to distinguish between
+the required and optional portions of those lists.
+
+GENERAL NOTES:
+
+	ALL the functions take scalar parameters when they take any parameters
+	at all. There are no functions that require array parameters as input.
+
+	Where a function has more than one output value, it is implemented to
+	provide its output as a perl list. In such cases, the value of the
+	C function (if any) will be the first element, with the other output
+	values in the following elements in the order that they appear in
+	equivalent C function prototype.
+
+	The FL_FORM and FL_OBJECT structures have been defined as Perl
+	objects (within the Forms package). Therefore, certain fields within
+        each structure can be directly READ. No mechanism for direct UPDATE
+        of these fields is provided (but see below about u_xdata fields); 
+
+	The syntax for field access is:
+
+		$form->field_name or $object->field_name 
+
+	The available fields in FL_FORM are:
+
+			deactivated
+			frozen
+			h
+			has_auto
+			hotx
+			hoty
+			prop
+			top
+			use_pixmap
+			u_vdata	(see below for write capability)
+			visible
+		    	vmode                
+			w
+			window
+			wm_border
+			x
+			y
+
+	The available fields in FL_OBJECT are:
+
+			active
+			align
+			automatic
+			belowmouse
+			bw
+			click_timeout
+			clip
+			col1
+			col2
+			focus
+			form
+			input
+			label
+			lcol
+			lsize
+			lstyle
+			pushed
+			radio
+			redraw
+			u_ldata	(see below for write capability)
+			u_vdata	(see below for write capability)
+			visible
+			wantkey
+			window (virtual field equivalent to $obj->form->window)
+			x
+			y
+
+	The u_ldata and u_vdata fields CAN be written to. Here is the syntax:
+
+			$object->u_ldata($whatever);
+
+	The point being: if you miss out the argument it reads the variable
+	but if you provide an argument it sets the variable (and returns it
+	too). PLEASE NOTE THAT THE u_vdata FIELDS ACCESSED IN THIS WAY ARE
+	NOT THE 'REAL' ONES - SO DON'T MESS WITH THEM DIRECTLY!!!
+
+A NOTE ON CALLBACKS:
+
+	To save me explaining the slight differences in the syntaxes required
+	to register perl subroutines as callbacks, these are the general
+	rules:
+
+	1)	Where you expect to pass the address of a callback routine 
+		in the functions that register callbacks, pass either a 
+		pointer to the perl subroutine that you wish to register, or 
+		a string containing its name. 
+
+	2)	Where the callback can accept user data set in the register 
+		function, you can pass any scalar integer or pointer (known 
+		as an IV to the perl internals).
+ 
+	3)	Where the C function that sets the callback returns a pointer
+		to the previous callback, the perl equivalent returns the
+		pointer to the previous perl callback sub.
+ 
+RESTRICTIONS/WARNINGS:
+
+	1)	You must not directly amend any part of the FL_OBJECT 
+		or FL_FORM structures (or any other structure the
+		pointer to which is returned to your PERL script) from
+		within PERL. It may be possible to write routines to
+		do this!! If you DO then on your head be it - but
+		it will probably work (just covering my rear end 
+		with that one!!!!)
+	2)	You absolutely MUST NOT use the 'REAL' u_vdata fields in
+		either the FL_OBJECT or FL_FORM structures because
+		the extension code uses these (to register perl
+		callback subroutines, if you are curious!). Use the above
+		syntax to access the u_vdata fields provided by the
+		extension instead.
+ 
+General functions - Forms_BASIC
+
+	fl_add_io_callback	fl_add_io_callback(file_descriptor, 
+						   condition, 
+						   callback, 
+						   user_parm)
+	fl_current_form		fl_current_form() 
+		This function returns a 'FL_FORM *' representing the 
+		contents of the fl_current_form field
+	fl_default_win
+	fl_default_window
+	fl_display		fl_display() 
+		This function returns a 'Display *' representing the 
+		contents of the fl_display field
+	fl_finish
+	fl_get_border_width
+	fl_get_coordunit
+	fl_get_display
+	fl_get_form_vclass
+	fl_get_vclass
+	fl_get_visual_depth
+	fl_initialize		fl_initialize("X_class_name") 
+		The processing of @ARGV takes place as described in 
+		the XForms doc, but it does so under the covers. The 
+		Xrm Option stuff is not supported.
+	fl_remove_io_callback	fl_remove_io_callback(file_descriptor, 
+						      condition) 
+	fl_screen
+	fl_set_atclose
+	fl_set_border_width
+	fl_set_clipping
+	fl_set_clippings
+	fl_set_coordunit
+	fl_set_gc_clipping
+	fl_set_graphics_mode
+	fl_set_tabstop
+	fl_set_text_clipping
+	fl_set_ul_property
+	fl_show_errors
+	fl_unset_clipping
+	fl_unset_gc_clipping
+	fl_unset_text_clipping
+	fl_vclass_name
+	fl_vclass_val
+	fl_vmode		fl_vmode() 
+		This function returns an integer representing the 
+		contents of the fl_vmode field.
+
+Window-specific - Forms_WIN
+
+	fl_get_win_geometry
+	fl_get_win_origin
+	fl_get_win_size
+	fl_get_wingeometry		($x, $y, $width, $height)
+                                                = fl_get_wingeometry(window);
+	fl_get_winorigin		($x, $y) = fl_get_winorigin(window);
+	fl_get_winsize			($width, $height) 
+						= fl_get_winsize(window);
+	fl_initial_wingeometry
+	fl_initial_winposition
+	fl_initial_winsize
+	fl_initial_winstate
+	fl_noborder
+	fl_pref_wingeometry
+	fl_pref_winposition
+	fl_pref_winsize
+	fl_reset_winconstraints
+	fl_set_background
+	fl_set_foreground
+	fl_set_winstepunit
+	fl_transient
+	fl_win_background
+	fl_win_to_form
+	fl_winaspect
+	fl_winbackground
+	fl_winclose
+	fl_wincreate
+	fl_wingeometry
+	fl_winget
+	fl_winhide
+	fl_winisvalid
+	fl_winmaxsize
+	fl_winminsize
+	fl_winmove
+	fl_winopen
+	fl_winposition
+	fl_winresize
+	fl_winreshape
+	fl_winset
+	fl_winshow
+	fl_winsize
+	fl_winstepunit
+	fl_wintitle
+
+Mouse-related functions - Forms_BASIC
+
+	fl_get_form_mouse		($x, $y) = fl_get_form_mouse(window);
+	fl_get_win_mouse 		($x, $y) = fl_get_win_mouse(window);
+	fl_get_mouse 			($x, $y) = fl_get_mouse();
+	fl_set_mouse
+
+XEvent functions - Forms_XEVENT
+
+	fl_XEventsQueued
+	fl_XNextEvent			($status, $xevent) =
+						fl_XNextEvent();
+	fl_XPeekEvent			($status, $xevent) =
+                                                fl_XPeekEvent();
+	fl_XPutBackEvent
+	fl_activate_event_callbacks
+	fl_add_event_callback
+	fl_add_selected_xevent
+	fl_addto_selected_xevent
+	fl_last_event
+	fl_print_xevent_name
+	fl_remove_event_callback
+	fl_remove_selected_xevent
+	fl_set_event_callback
+	fl_set_idle_callback
+
+Drawing - Forms_DRAW
+
+	fl_add_float_vertex
+	fl_add_vertex
+	fl_arc
+	fl_arcf
+	fl_bgnclosedline
+	fl_bgnline
+	fl_bgnpolygon
+	fl_circ
+	fl_circf
+	fl_diagline
+	fl_draw_text
+	fl_drw_box
+	fl_drw_checkbox
+	fl_drw_frame
+	fl_drw_text
+	fl_drw_text_beside
+	fl_drw_text_cursor
+	fl_endclosedline
+	fl_endline
+	fl_endpolygon
+	fl_line
+	fl_lines		fl_lines($x1, $y1
+                                         [,$x2, $y2 [,...[,$xn, $yn,]]],
+                                         $color)
+	fl_linestyle
+	fl_linewidth
+	fl_oval
+	fl_oval_bound
+	fl_ovalbound
+	fl_ovalf
+	fl_ovall
+	fl_pieslice
+	fl_polybound		fl_polybound($x1, $y1
+                                             [,$x2, $y2 [,...[,$xn, $yn,]]],
+                                             $color)
+	fl_polyf		fl_polyf($x1, $y1
+                                         [,$x2, $y2 [,...[,$xn, $yn,]]],
+                                         $color)
+	fl_polygon		fl_polygon($type, $x1, $y1 
+					   [,$x2, $y2 [,...[,$xn, $yn,]]],
+					   $color)
+	fl_polyl		fl_polyl($x1, $y1
+                                         [,$x2, $y2 [,...[,$xn, $yn,]]],
+                                         $color)
+	fl_rect
+	fl_rectangle
+	fl_rectbound
+	fl_rectf
+	fl_reset_vertex
+	fl_roundrect
+	fl_roundrectangle
+	fl_roundrectf
+	fl_set_font
+	fl_set_font_name
+	fl_simple_line
+
+Fonts, Characters, Strings, Colors - Forms_BASIC
+
+	fl_bk_color
+	fl_bk_textcolor
+	fl_color
+	fl_free_colors
+		fl_free_colors($color1[, $color2[,...[, $colorn]]])
+	fl_free_pixels
+		fl_free_pixels($pixel1[, $pixel2[,...[, $pixeln]]])
+	fl_get_align_xy
+		($x, $y) = 
+			fl_get_align_xy($int1, $int2, $int3,
+					$int4, $int5, $int6,
+					$int7, $int8, $int9);
+	fl_get_char_height 
+		($return, $ascend, $descend) = 
+			fl_get_char_height($font_style, $font_size);
+	fl_get_char_width
+	fl_get_flcolor
+	fl_get_icm_color
+		($r, $g, $b) =
+			fl_get_icm_color($color);
+	fl_get_pixel
+	fl_get_string_dimension
+		($ascend, $descend) = 
+			fl_get_string_dimesion($font_style, $font_size, 
+					       $string, $string_length);
+	fl_get_string_height 
+		($return, $ascend, $descend) = 
+			fl_get_string_height($font_style, $font_size, 
+					     $string, $string_length);
+	fl_get_string_size
+                ($return, $ascend, $descend) = 
+                        fl_get_string_size($font_style, $font_size, 
+                                           $string, $string_length);
+	fl_get_string_width
+	fl_get_string_widthTAB
+	fl_getmcolor
+		($r, $g, $b) =
+			fl_getmcolor($color);
+	fl_mapcolor
+	fl_mapcolor_name
+	fl_mapcolorname
+	fl_set_color_leak
+	fl_set_gamma
+	fl_set_icm_color
+	fl_textcolor
+
+Forms - Forms_BASIC
+
+	fl_activate_all_forms
+	fl_activate_form
+	fl_addto_form
+	fl_bgn_form
+	fl_bgn_group
+	fl_check_forms
+	fl_check_only_forms
+	fl_deactivate_all_forms
+	fl_deactivate_form
+	fl_do_forms
+	fl_do_only_forms
+	fl_end_form
+	fl_end_group
+	fl_free_form
+	fl_freeze_all_forms
+	fl_freeze_form
+	fl_get_app_mainform
+	fl_get_form_event_cmask
+	fl_hide_form
+	fl_lower_form
+	fl_mode_capable
+	fl_prepare_form_window
+	fl_raise_form
+	fl_redraw_form
+	fl_register_call_back
+	fl_register_raw_callback
+	fl_scale_form
+	fl_set_app_mainform
+	fl_set_font
+	fl_set_font_name
+	fl_set_form_atactivate
+	fl_set_form_atclose
+	fl_set_form_atdeactivate
+	fl_set_form_call_back
+	fl_set_form_callback
+	fl_set_form_dblbuffer
+	fl_set_form_event_cmask
+	fl_set_form_geometry
+	fl_set_form_hotobject
+	fl_set_form_hotspot
+	fl_set_form_maxsize
+	fl_set_form_minsize
+	fl_set_form_position
+	fl_set_form_property
+	fl_set_form_property
+	fl_set_form_size
+	fl_set_form_title
+	fl_set_initial_placement
+	fl_show_form
+	fl_show_form_window
+	fl_unfreeze_all_forms
+	fl_unfreeze_form
+
+General Object functions - Forms_BASIC
+
+	fl_activate_object
+	fl_add_object
+	fl_call_object_callback
+	fl_compute_object_geometry
+	fl_deactivate_object
+	fl_delete_object
+	fl_fit_object_label
+	fl_free_object
+	fl_get_object_geometry
+		($x, $y, $width, $height) =
+			fl_get_object_geometry($object);
+	fl_get_object_position
+		($x, $y) =
+			fl_get_object_position($object);
+	fl_hide_object
+	fl_make_object
+	fl_redraw_object
+	fl_scale_object
+	fl_set_call_back
+	fl_set_focus_object
+	fl_set_object_align
+	fl_set_object_automatic
+	fl_set_object_boxtype
+	fl_set_object_bw
+	fl_set_object_callback
+	fl_set_object_color
+	fl_set_object_dblbuffer
+	fl_set_object_dblclick
+	fl_set_object_focus
+	fl_set_object_geometry
+	fl_set_object_gravity
+	fl_set_object_label
+	fl_set_object_lalign
+	fl_set_object_lcol
+	fl_set_object_lsize
+	fl_set_object_lstyle
+	fl_set_object_position
+	fl_set_object_posthandler
+	fl_set_object_prehandler
+	fl_set_object_resize
+	fl_set_object_return
+	fl_set_object_shortcut
+	fl_set_object_shortcutkey
+	fl_set_object_size
+	fl_show_object
+	fl_trigger_object
+
+Specific object functions
+
+	BITMAPS
+
+		fl_add_bitmap
+		fl_create_bitmap
+		fl_set_bitmap_datafile
+		fl_set_bitmap_file
+
+	PIXMAPS
+
+		fl_add_pixmap
+		fl_create_pixmap
+		fl_free_pixmap_pixmap
+		fl_set_pixmap_align
+		fl_set_pixmap_colorcloseness
+		fl_set_pixmap_datafile
+		fl_set_pixmap_file
+
+	BOXES
+
+		fl_add_box
+		fl_create_box
+
+	BROWSERS
+
+		fl_add_browser
+		fl_add_browser_line
+		fl_addto_browser
+		fl_clear_browser
+		fl_create_browser
+		fl_delete_browser_line
+		fl_deselect_browser
+		fl_deselect_browser_line
+		fl_get_browser
+		fl_get_browser_dimension	
+			($x, $y, $width, $height) =
+				fl_get_browser_dimension($object);
+		fl_get_browser_line
+		fl_get_browser_maxline
+		fl_get_browser_screenlines
+		fl_get_browser_topline
+		fl_insert_browser_line
+		fl_isselected_browser_line
+		fl_load_browser
+		fl_replace_browser_line
+		fl_select_browser_line
+		fl_set_browser_dblclick_callback
+		fl_set_browser_fontsize
+		fl_set_browser_fontstyle
+		fl_set_browser_leftscrollbar
+		fl_set_browser_leftslider
+		fl_set_browser_line_selectable
+		fl_set_browser_specialkey
+		fl_set_browser_topline
+		fl_set_browser_vscrollbar
+		fl_set_browser_xoffset
+
+	BUTTONS
+
+		fl_add_bitmapbutton
+		fl_add_button
+		fl_add_checkbutton
+		fl_add_lightbutton
+		fl_add_pixmapbutton
+		fl_add_roundbutton
+		fl_create_bitmapbutton
+		fl_create_button
+		fl_create_checkbutton
+		fl_create_generic_button
+		fl_create_lightbutton
+		fl_create_pixmapbutton
+		fl_create_roundbutton
+		fl_get_button
+		fl_get_button_numb
+		fl_set_bitmapbutton_datafile
+		fl_set_bitmapbutton_file
+		fl_set_button
+		fl_set_button_shortcut
+		fl_set_pixmapbutton_datafile
+		fl_set_pixmapbutton_file
+
+	CANVASES - Forms_CANVAS
+
+		fl_add_canvas
+		fl_add_canvas_handler
+		fl_canvas_yield_to_shortcut
+		fl_create_canvas
+		fl_create_generic_canvas
+##		fl_create_GC			$GC = fl_create_GC();
+			Creates a graphics context on the default display
+			for the default window
+##		fl_fill_rectangle		
+			fl_fill_rectangle($win, $gc, $x, $y, $width, $height);
+			Implements XFillRectangle for Xforms
+		fl_get_canvas_colormap
+		fl_get_canvas_depth
+		fl_get_canvas_id
+		fl_hide_canvas
+		fl_modify_canvas_prop
+		fl_remove_canvas_handler
+		fl_set_canvas_attributes
+		fl_set_canvas_colormap
+		fl_set_canvas_decoration
+		fl_set_canvas_depth
+		fl_set_canvas_visual
+
+	OPEN_GL CANVASES - Forms_OPEN_GL
+
+		fl_add_glcanvas
+		fl_create_glcanvas
+		fl_get_glcanvas_attributes
+			@attributes = fl_get_glcanvas_attributes($object);
+		fl_get_glcanvas_context
+		fl_get_glcanvas_defaults
+			@defaults = fl_get_glcanvas_defaults();
+		fl_get_glcanvas_xvisualinfo
+		fl_glwincreate
+			($window, $out_int, $glxcontext) = 
+				fl_glwincreate($in_int1, $in_int2);
+		fl_glwinopen
+                         ($window, $out_int, $glxcontext) =
+                                fl_glwinopen($in_int1, $in_int2);
+		fl_set_glcanvas_attributes
+		fl_set_glcanvas_defaults
+		fl_set_glcanvas_direct
+
+	CHARTS - Forms_PLOT_OBJS
+
+		fl_add_chart
+		fl_add_chart_value
+		fl_clear_chart
+		fl_create_chart
+		fl_insert_chart_value
+		fl_replace_chart_value
+		fl_set_chart_autosize
+		fl_set_chart_bounds
+		fl_set_chart_maxnumb
+
+	CHOICES - Forms_CHOICE_OBJS
+
+		fl_add_choice
+		fl_addto_choice
+		fl_clear_choice
+		fl_create_choice
+		fl_delete_choice
+		fl_get_choice
+		fl_get_choice_maxitems
+		fl_get_choice_text
+		fl_replace_choice
+		fl_set_choice
+		fl_set_choice_align
+		fl_set_choice_fontsize
+		fl_set_choice_fontstyle
+		fl_set_choice_item_mode
+		fl_set_choice_item_shortcut
+		fl_set_choice_text
+
+	CLOCKS - Forms_BASIC
+
+		fl_add_clock
+		fl_create_clock
+		fl_get_clock	($hrs, $mins, $secs) =
+					fl_get_clock($object);
+
+	COUNTERS - Forms_VAL_OBJS
+
+		fl_add_counter
+		fl_create_counter
+		fl_get_counter_value
+		fl_set_counter_bounds
+		fl_set_counter_filter
+		fl_set_counter_precision
+		fl_set_counter_return
+		fl_set_counter_step
+		fl_set_counter_value
+
+	CURSORS - Forms_BASIC
+
+		fl_create_bitmap_cursor
+		fl_get_cursor_byname
+		fl_reset_cursor
+		fl_set_cursor
+		fl_set_cursor_color
+
+	DIALS - Forms_VAL_OBJS
+
+		fl_add_dial
+		fl_create_dial
+		fl_get_dial_bounds
+			($lower, $upper) =
+				fl_get_dial_bounds($object);
+		fl_get_dial_value
+		fl_set_dial_angles	
+		fl_set_dial_bounds	
+		fl_set_dial_cross	
+		fl_set_dial_return
+		fl_set_dial_step
+		fl_set_dial_value
+
+	FRAMES - Forms_BASIC
+
+		fl_add_frame
+		fl_create_frame
+
+	FREE OBJECTS - Forms_DRAW
+
+		fl_add_free
+		fl_create_free
+
+	GOODIES - Forms_GOODIES
+
+		fl_add_fselector_appbutton
+		fl_disable_fselector_cache
+		fl_get_directory
+		fl_get_filename
+		fl_get_fselector_form
+		fl_get_pattern
+		fl_hide_fselector
+		fl_hide_oneliner
+		fl_invalidate_fselector_cache
+		fl_refresh_fselector
+		fl_remove_fselector_appbutton
+		fl_set_choices_shortcut
+		fl_set_fselector_border
+		fl_set_fselector_callback
+		fl_set_fselector_cb
+		fl_set_fselector_placement
+		fl_set_fselector_title
+		fl_set_fselector_transient
+		fl_set_goodies_font
+		fl_set_oneliner_color
+		fl_set_oneliner_font
+		fl_show_alert
+		fl_show_choice
+		fl_show_colormap
+		fl_show_file_selector
+		fl_show_fselector
+		fl_show_input
+		fl_show_menu_symbol
+		fl_show_message
+		fl_show_oneliner
+		fl_show_question
+		fl_use_fselector
+
+	INPUTS - Forms_BASIC
+
+		fl_add_input
+		fl_create_input
+		fl_get_input
+		fl_get_input_cursorpos
+			($return, $x, $y) = fl_get_input_cursorpos($object);
+		fl_set_input
+		fl_set_input_color
+		fl_set_input_cursorpos
+		fl_set_input_filter
+		fl_set_input_maxchars
+		fl_set_input_return
+		fl_set_input_scroll
+		fl_set_input_selected
+		fl_set_input_selected_range
+		fl_set_input_shortcut
+
+	MENUS - Forms_CHOICE_OBJS
+
+		fl_add_menu
+		fl_addto_menu
+		fl_clear_menu
+		fl_create_menu
+		fl_delete_menu_item
+		fl_get_menu
+		fl_get_menu_item_mode
+		fl_get_menu_maxitems
+		fl_get_menu_text
+		fl_replace_menu_item
+		fl_set_menu
+		fl_set_menu_item_mode
+		fl_set_menu_item_shortcut
+		fl_set_menu_popup
+		fl_show_menu_symbol
+
+	POPUPS - Forms_CHOICE_OBJS
+
+		fl_addtopup
+		fl_defpup
+		fl_dopup
+		fl_freepup
+		fl_getpup_mode
+		fl_getpup_text
+		fl_hidepup
+		fl_newpup
+		fl_setpup
+		fl_setpup_bw
+		fl_setpup_color
+		fl_setpup_cursor
+		fl_setpup_default_cursor
+		fl_setpup_fontsize
+		fl_setpup_fontstyle
+		fl_setpup_hotkey
+		fl_setpup_maxpup
+		fl_setpup_mode
+		fl_setpup_pad
+		fl_setpup_position
+		fl_setpup_selection
+		fl_setpup_shadow
+		fl_setpup_shortcut
+		fl_setpup_softedge
+		fl_setpup_submenu
+		fl_setpup_title
+		fl_showpup
+
+	POSITIONERS - Forms_VAL_OBJS
+
+		fl_add_positioner
+		fl_create_positioner
+		fl_get_positioner_xbounds
+			($lower, $upper) =
+				fl_get_positioner_xbounds($object);
+		fl_get_positioner_xvalue
+		fl_get_positioner_ybounds
+			($lower, $upper) =
+				fl_get_positioner_ybounds($object);
+		fl_get_positioner_yvalue
+		fl_set_positioner_return
+		fl_set_positioner_xbounds
+		fl_set_positioner_xstep
+		fl_set_positioner_xvalue
+		fl_set_positioner_ybounds
+		fl_set_positioner_ystep
+		fl_set_positioner_yvalue
+
+	SLIDERS - Forms_VAL_OBJS
+
+		fl_add_slider
+		fl_add_valslider
+		fl_create_slider
+		fl_create_valslider
+		fl_get_slider_bounds
+			($lower, $upper) =
+				fl_get_slider_bounds($object);
+		fl_get_slider_value
+		fl_set_slider_bounds
+		fl_set_slider_filter
+		fl_set_slider_precision
+		fl_set_slider_return
+		fl_set_slider_size
+		fl_set_slider_step
+		fl_set_slider_value
+
+	TEXT - Forms_BASIC
+
+		fl_add_text
+		fl_create_text
+
+	TIMERS - Forms_BASIC
+
+		fl_add_timer
+		fl_create_timer
+		fl_get_timer
+		fl_set_timer
+
+	XYPLOTS - Forms_PLOT_OBJS
+
+		fl_add_xyplot
+		fl_add_xyplot_overlay 
+			fl_add_xyplot_overlay($object, $overlayid, $x1, $x2 
+                                              [,$x2, $y2 [,...[,$xn, $yn,]]])
+		fl_add_xyplot_text
+		fl_create_xyplot
+		fl_delete_xyplot_overlay
+		fl_delete_xyplot_text
+		fl_get_xyplot 
+			($x, $y, $dataindex) = 
+				fl_get_xyplot($object);
+		fl_get_xyplot_data 
+			($x, $y, $dataindex) = 
+				fl_get_xyplot($object);
+		fl_get_xyplot_xbounds
+			($lower, $upper) =
+				fl_get_xyplot_xbounds($object);
+		fl_get_xyplot_xmapping
+			($fl1, $fl2) =
+				fl_get_xyplot_xmapping($object);
+		fl_get_xyplot_ybounds
+			($lower, $upper) =
+				fl_get_xyplot_ybounds($object);
+		fl_get_xyplot_ymapping
+			($fl1, $fl2) =
+				fl_get_xyplot_ymapping($object);
+		fl_replace_xyplot_point
+		fl_set_xyplot_data 
+			fl_set_xyplot_data($object, $x1, $x2,
+                                           [$x2, $y2 [,...[,$xn, $yn,]]],)
+					   $title, $xlabel, $ylabel)
+		fl_set_xyplot_datafile
+		fl_set_xyplot_file
+		fl_set_xyplot_fontsize
+		fl_set_xyplot_fontstyle
+		fl_set_xyplot_inspect
+		fl_set_xyplot_interpolate
+		fl_set_xyplot_overlay_type
+		fl_set_xyplot_return
+		fl_set_xyplot_scale
+		fl_set_xyplot_symbolsize
+		fl_set_xyplot_xbounds
+		fl_set_xyplot_xscale
+		fl_set_xyplot_xtics
+		fl_set_xyplot_ybounds
+		fl_set_xyplot_yscale
+		fl_set_xyplot_ytics
+		fl_xyplot_s2w  
+			($wx, $wy) = fl_xyplot_w2s($object, $sx, $sy);
+		fl_xyplot_w2s  
+			($sx, $sy) = fl_xyplot_w2s($object, $wx, $wy);

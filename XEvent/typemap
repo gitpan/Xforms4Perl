@@ -1,0 +1,5 @@
+TYPEMAP
+XEvent *	T_PTROBJ
+Display *	T_PTR
+KeySym		T_IV
+KeyCode		T_U_CHAR

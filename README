@@ -1,0 +1,185 @@
+#    README - An extension to PERL to access XForms functions.
+#    Copyright (C) 1996  Martin Bartlett
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+Introduction
+
+This is an extension to PERL that allows you to call the XForms functions 
+from a standard PERL script. The implications are quite impressive - you
+can now develop complex X applications in PERL. The package includes a
+number of examples in the DEMOS directory (sound familiar?), many of which
+are unashamedly plagerised from the XForms DEMOS directory. The inspiration
+for this project is also included - XFtool, an 'MS Office'-like toolbar. 
+This is the second release of the extension and operates only with the new 
+version 0.80 and later of the XForms library.
+
+Please consider this a Beta release - that is, it's a release that may cause
+you to beat your head on a hard spiky object! I have not tested EVERY 
+function since most are implemented with bog-standard XSUB code. I HAVE
+attempted to test the ones where I go slightly-to-wildly astray from XSUB
+normality (such as XEvent processing and callback logic).
+
+Whats Implemented
+
+Almost everything! From basic forms to XEvent processing, from GL canvases
+to XY plots. There is a file, Forms.not_implemented that covers whats NOT
+here - and why (even weak excuses like 'Hey, I'm moving house' are included!).
+
+For the most part, the functions have the same protocols from PERL as they do
+from C. This proves mighty useful, since you can very easily convert the 
+nnnnnnn.c output from Fdesign into equivalent PERL statements - almost always
+via a simple cut-and-paste into your PERL script. Where there are differences
+these are detailed in the Forms.functions file. A COMPLETELY untried and
+untested (by me) perl script is included to perform such conversions.
+
+Before using the extension, please read the comments at the top of the
+Forms.functions file. They contain information that you should be aware of,
+especially usage restrictions (I don't mean copyright restrictions, I mean
+things that you can't do because you'll probably die horribly!!!!).
+
+How's it implemented
+
+The extension comes as 11 separate perl modules:
+
+	Forms_BASIC		All the basic stuff, including perl oo syntax
+				access to the FL_FORM and FL_OBJECT structures
+	Forms_CANVAS		None OpenGL Canvas Object support
+	Forms_CHOICE_OBJS	Menus, Choices and Popups
+	Forms_DRAW		Free objects and drawing routines
+	Forms_GOODIES		The XForms Goodies
+	Forms_OPEN_GL		OpenGL Canvas Object support
+	Forms_PLOT_OBJS		Charts and XYPlots
+	Forms_VAL_OBJS		Sliders, Positioners and Counters
+	Forms_WIN		Window manipulation routines
+	Forms_XEVENT		XEvent manipulation routines
+	XEvent			Not strictly XForms - a module that provides
+				perl oo syntax access to the contents of
+				XEvent structures used by Forms_XEVENT.
+
+There are two files that help you sort out what modules you need for a 
+particular application:
+
+	Forms.functions		lists all supported functions, grouped by 
+				perl module. Also provides detailed syntax
+				of functions. READ THIS FIRST!
+	Forms.all_functions	lists all functions alphabetically, with 
+				the name of the perl module that implements
+				each function.
+
+Whats improved since the first cut
+
+	. obviously the huge increase in supported functions. 
+	. There are also fixes to the very weak callback mechanism I used in 
+	  the first one - like no longer ignoring warnings in the perlcall 
+	  manual page!! 
+	. The compile should now be completely warning free due to the 
+	  addition of a typemap fix that gets rid of the const violation 
+	  warnings. 
+	. XEvent structures are registered as perl objects of class XEventPtr. 
+	  Using the separate, but jointly delivered XEventPtr extension 
+	  (found in the XEvent directory), you can access the XEvent 
+	  structures returned by some Forms functions. 
+	. You now have read access to the more interesting fields in the 
+	  FL_OBJECT and FL_FORM structures (via perl OO syntax - $form->window 
+	  for instance) and you have read AND WRITE access to the u_vdata and 
+	  u_ldata fields in those structures (again, via perl OO syntax - see 
+	  DEMOS/free1.pl for an example) PLEASE NOTE: The u_vdata field you 
+	  access is NOT the REAL one, it's in a structure I chain off the real 
+	  one - so don't try and mess with the real one.
+	. The XFtool DEMO is a more solid implementation of a toolbar, with
+	  tooltips and command-line and pixmap browse/edit facilities.
+	. Finally, the entire package has been broken into a number of modules 
+	  to help with run time speed (most standard applications will only 
+	  require one or two of the modules).
+
+What you need
+
+You need a couple of things: 
+
+	T.C.Zhao's and Mark Overmars' Forms Library for X, version 0.8. 
+	You can get that from
+
+		bloch.phys.uwm.edu /pub/xforms
+		(in the test directory at the time of writing!)
+
+	PERL version 5.001. In fact I am using a version that is patched to
+	level M. You need to have installed the full distribution (though
+	you don't need the source tree itself). The make process checks
+	your kit - but don't thank me for that as its all part of the 
+	standard PERL extension implementation process! You need the 
+	PERL extensions that get distributed with PERL but no others.
+	The package has been tested successfully on 5.002 as well.
+
+How to implement it
+
+If you are reading this then you know how to gunzip/untar the distribution!
+From there you SHOULD be able to just do the following IF you want to use
+the extension as a dynamically loaded extension. If you want it statically
+bound then you need to read the comments that are found in the Makefile
+generated by the first step:
+
+In each of the Forms_* directories (but DON'T do Forms_OPEN_GL unless you
+actually have OpenGL implemented), and the XEvent directory:
+
+	edit Makefile.PL     # Read the comments in Makefile.PL that pertain
+			     # to Include paths, Library paths, and OpenGL
+			     # and make any necessary changes.
+
+	perl Makefile.PL     # to make the makefile using the PERL 
+			     # MakeMaker.pm extension 
+
+	make dynamic         # To make a dynamic extension. You may get
+	      		     # a general make failure with the error:
+			     #	   ./blib/auto/Forms/.packlist: No such file 
+			     #	   or directory
+			     # If you get that, just run make dynamic again -
+			     # weird eh???????
+
+	make install	     # To install the extension.
+
+Yes, yes, I know, I should have a nice little front end in the master directory,
+but I don't, alright!! Perhaps when it goes non-beta (probably when Forms 0.8x
+goes official).
+
+Now you are ready to use the extension. Have a look in the DEMOS directory
+for examples of use.
+
+Development details
+
+This extension was developed on an IBM Thinkpad 755cs running Linux 1.2.13
+from Slackware, X11R6, the XForms Library 0.8 and PERL 5.001m. It should work 
+on any version of Linux that runs other XForms applications and PERL 5.001
+and above. It should also run on any Unix system that can run XForms and 
+PERL 5.001 and above, or at least be reasonably easy to port.
+
+Your implementation stories, along with comments/questions/bug-reports are
+welcome, to 
+
+	martin@nitram.demon.co.uk
+
+or on the XForms mailing list, which I read (but to make sure I do, put the
+phrase 'Forms for PERL' in the heading!!)
+
+THANKS
+
+My main 'other party' thanks goes to Zoran Popovic <zoran@cs.cmu.edu> for
+his extensive testing efforts (especially around the OpenGL area, and using 
+PERL 5.002) and suggestions, and also for the convert fd file script 
+(cnvrtfd.pl, found in the master directory). 
+
+Thanks also to Reza Naima <reza@reza.extern.ucsd.edu> for the proc-lookup demo.
+
+Martin Bartlett 
