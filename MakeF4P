@@ -1,0 +1,60 @@
+#!/bin/sh
+#    MakeF4P - An extension to PERL to access XForms functions.
+#    Copyright (C) 1996-1997  Martin Bartlett
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+# Rudimentary shell script to compile the Xforms4Perl packages
+#
+
+for dir in Xforms XEvent XFontStruct
+do
+	cd $dir
+	echo In `pwd`
+	(echo -e "\n############ Making Makefile(s) for $dir ############\n" &&
+	perl Makefile.PL && 
+	echo -e "\n############ Making perl module(s) for $dir ############\n" &&
+	echo -e "\n######### Ignore 'Warning: Aliases' messages ########\n" &&
+	make &&
+	olddir=$PWD &&
+	cd blib/arch/auto/$dir &&
+	echo -e "\n############ Stripping module(s) for $dir ############\n############ BEFORE -" &&
+	find . -name '*.so' -exec ls -l {} \; &&
+	find . -name '*.so' -exec strip {} \; &&
+	echo -e "\n############ AFTER -" &&
+	find . -name '*.so' -exec ls -l {} \; &&
+	cd $olddir &&
+	echo -e "\n############ Installing components of $dir ############\n" &&
+	make install &&
+	echo -e "\n############ MAKE SUCCESSFUL! Cleaning up ############\n" &&
+	make clean) > make.results 2>&1
+	echo Leaving `pwd`
+	cd ..
+done
+echo ""
+echo '### Make completed - Do you want to review the results? (Y or N):'
+read answer
+if [ "$answer" = "Y" -o "$answer" = "y" ]
+then
+	for dir in Xforms XEvent XFontStruct
+	do
+        	cd $dir
+		vi make.results 2>&1
+		cd ..
+	done
+else
+	echo "To review the results of the make, see the make.results"
+	echo "file in each subdirectory of the master directory."
+fi

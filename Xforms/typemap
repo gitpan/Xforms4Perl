@@ -1,0 +1,47 @@
+TYPEMAP
+FLForm *		T_FLFRM
+FLObject *		T_FLOBJ
+FLOpt *			T_PTROBJ
+FDCmdlog *		T_PTROBJ
+FDFselector *		T_PTROBJ
+FLEditKeymap *		T_PTROBJ
+Display *		T_PTR
+Visual *		T_PTR
+XSetWindowAttributes *	T_PTR
+GC			T_PTR
+XEvent *		T_PTROBJ
+XFontStruct *		T_PTROBJ
+Window			T_IV
+Drawable        	T_IV
+Font            	T_IV
+Pixmap          	T_IV
+Cursor          	T_IV
+Colormap        	T_IV
+GContext        	T_IV
+GLXContext        	T_PTR
+KeySym          	T_IV
+FL_Coord          	T_IV
+FL_COLOR          	T_IV
+const char *		T_PV_C
+float			T_DOUBLE
+XVisualInfo *		T_PTR
+################################################################
+INPUT
+T_PV_C
+        $var = ($type)SvPV($arg,na)
+T_FLOBJ
+        $var = ($type) chk_bless($arg, \"${ntype}\");
+T_FLFRM
+        $var = ($type) chk_bless($arg, \"${ntype}\");
+T_PTROBJ
+        $var = ($type) chk_bless($arg, \"${ntype}\");
+################################################################
+OUTPUT
+T_PV_C
+        sv_setpv_c((SV*)$arg, $var);
+T_FLOBJ
+	bless_object($var);
+	$arg = get_object_data($var)->po;
+T_FLFRM
+	bless_form($var);
+	$arg = get_form_data($var)->po;

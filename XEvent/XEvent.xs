@@ -1,6 +1,6 @@
 /*
 #    XEvent.pm - An extension to PERL to access XEvent structures.
-#    Copyright (C) 1996  Martin Bartlett
+#    Copyright (C) 1996-1997  Martin Bartlett
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -257,46 +257,6 @@ XEvent_new(class)
 		OUTPUT:
 		RETVAL
 
-int
-XEvent_type(event)
-	XEvent *	event
-	CODE:
-		RETVAL = event->type;
-	OUTPUT:
-	RETVAL
-
-unsigned long
-XEvent_serial(event)
-	XEvent *	event
-	CODE:
-		{
-			switch(event->type) {
-				case  0:
-					RETVAL = event->xerror.serial;
-					break;
-				default:
-					RETVAL = event->xany.serial;
-					break;
-			}
-		}
-	OUTPUT:
-	RETVAL
-
-void
-XEvent_send_event(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
-			switch(event->type) {
-				case  0:
-					break;
-				default:
-					sv_setiv(ST(0), event->xany.send_event);
-					break;
-			}
-		}
-
 Display *
 XEvent_display(event)
 	XEvent *	event
@@ -315,11 +275,84 @@ XEvent_display(event)
 	RETVAL
 
 void
-XEvent_window(event)
+XEvent_type(event)
 	XEvent *	event
+	ALIAS:
+		serial = 1
+		send_event = 2
+		window = 3
+		root = 4
+		subwindow = 5
+		time = 6
+		x = 7
+		y = 8
+		x_root = 9
+		y_root = 10
+		state = 11
+		keycode = 12
+		button = 13
+		is_hint = 14
+		same_screen = 15
+		mode = 16
+		detail = 17
+		focus = 18
+		key_vector = 19
+		width = 20
+		height = 21
+		count = 22
+		drawable = 23
+		major_code = 24
+		minor_code = 25
+		parent = 26
+		event = 27
+		border_width = 28
+		override_redirect = 29
+		from_configure = 30
+		above = 31
+		value_mask = 32
+		place = 33
+		atom = 34
+		selection = 35
+		owner = 36
+		target = 37
+		property = 38
+		colormap = 39
+		c_new = 40
+		message_type = 41
+		format = 42
+		data = 43
+		request = 44
+		first_keycode = 45
+		resourceid = 46
+		error_code = 47
+		request_code = 48
 	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+	{	
+		ST(0) = sv_newmortal(); 
+		switch (ix) {
+		case 0:
+			sv_setiv(ST(0), event->type);
+			break;
+		case 1:
+			switch(event->type) {
+				case  0:
+					sv_setiv(ST(0), event->xerror.serial);
+					break;
+				default:
+					sv_setiv(ST(0), event->xany.serial);
+					break;
+			}
+			break;
+		case 2:
+			switch(event->type) {
+				case  0:
+					break;
+				default:
+					sv_setiv(ST(0), event->xany.send_event);
+					break;
+			}
+			break;
+		case 3:
 			switch(event->type) {
 				case  0:
 					break;
@@ -340,15 +373,8 @@ XEvent_window(event)
 					sv_setiv(ST(0), event->xany.window);
 					break;
 			}
-		}
-
-
-void
-XEvent_root(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 4:
 			switch(event->type) {
 				case  KeyPress:
 				case  KeyRelease:
@@ -362,14 +388,8 @@ XEvent_root(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_subwindow(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 5:
 			switch(event->type) {
 				case  KeyPress:
 				case  KeyRelease:
@@ -383,14 +403,8 @@ XEvent_subwindow(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_time(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 6:
 			switch(event->type) {
 				case  KeyPress:
 				case  KeyRelease:
@@ -416,14 +430,8 @@ XEvent_time(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_x(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 7:
 			switch(event->type) {
 				case  KeyPress:
 				case  KeyRelease:
@@ -450,14 +458,8 @@ XEvent_x(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_y(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 8:
 			switch(event->type) {
 				case  KeyPress:
 				case  KeyRelease:
@@ -484,14 +486,8 @@ XEvent_y(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_x_root(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 9:
 			switch(event->type) {
 				case  KeyPress:
 				case  KeyRelease:
@@ -505,14 +501,8 @@ XEvent_x_root(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_y_root(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 10:
 			switch(event->type) {
 				case  KeyPress:
 				case  KeyRelease:
@@ -526,14 +516,8 @@ XEvent_y_root(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_state(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 11:
 			switch(event->type) {
 				case  KeyPress:
 				case  KeyRelease:
@@ -558,14 +542,8 @@ XEvent_state(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_keycode(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 12:
 			switch(event->type) {
 				case  KeyPress:
 				case  KeyRelease:
@@ -574,14 +552,8 @@ XEvent_keycode(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_button(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 13:
 			switch(event->type) {
 				case  ButtonPress:
 				case  ButtonRelease:
@@ -590,14 +562,8 @@ XEvent_button(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_is_hint(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 14:
 			switch(event->type) {
 				case  MotionNotify:
 					sv_setpvn(ST(0), &event->xmotion.is_hint, 1);
@@ -605,14 +571,8 @@ XEvent_is_hint(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_same_screen(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 15:
 			switch(event->type) {
 				case  KeyPress:
 				case  KeyRelease:
@@ -630,14 +590,8 @@ XEvent_same_screen(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_mode(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 16:
 			switch(event->type) {
 				case  EnterNotify:
 				case  LeaveNotify:
@@ -650,14 +604,8 @@ XEvent_mode(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_detail(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 17:
 			switch(event->type) {
 				case  EnterNotify:
 				case  LeaveNotify:
@@ -673,14 +621,8 @@ XEvent_detail(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_focus(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 18:
 			switch(event->type) {
 				case  EnterNotify:
 				case  LeaveNotify:
@@ -689,14 +631,8 @@ XEvent_focus(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_key_vector(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 19:
 			switch(event->type) {
 				case  KeymapNotify:
 					sv_setpvn(ST(0), event->xkeymap.key_vector, 32);
@@ -704,14 +640,8 @@ XEvent_key_vector(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_width(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 20:
 			switch(event->type) {
 				case  Expose:
 				case  GraphicsExpose:
@@ -730,14 +660,8 @@ XEvent_width(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_height(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 21:
 			switch(event->type) {
 				case  Expose:
 				case  GraphicsExpose:
@@ -756,14 +680,8 @@ XEvent_height(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_count(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 22:
 			switch(event->type) {
 				case  Expose :
 				case  GraphicsExpose:
@@ -775,14 +693,8 @@ XEvent_count(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_drawable(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 23:
 			switch(event->type) {
 				case  GraphicsExpose:
 				case  NoExpose:
@@ -791,14 +703,8 @@ XEvent_drawable(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_major_code(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 24:
 			switch(event->type) {
 				case  GraphicsExpose:
 					sv_setiv(ST(0), event->xgraphicsexpose.major_code);
@@ -809,14 +715,8 @@ XEvent_major_code(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_minor_code(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 25:
 			switch(event->type) {
 				case  0:
 					sv_setpvn(ST(0), (char *)&event->xerror.minor_code, 1);
@@ -830,14 +730,8 @@ XEvent_minor_code(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_parent(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 26:
 			switch(event->type) {
 				case  CreateNotify:
 				case  ConfigureRequest:
@@ -853,14 +747,8 @@ XEvent_parent(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_event(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 27:
 			switch(event->type) {
 				case  DestroyNotify:
 				case  UnmapNotify:
@@ -874,14 +762,8 @@ XEvent_event(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_border_width(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 28:
 			switch(event->type) {
 				case  CreateNotify:
 				case  ConfigureNotify:
@@ -891,14 +773,8 @@ XEvent_border_width(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_override_redirect(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 29:
 			switch(event->type) {
 				case  CreateNotify:
 					sv_setiv(ST(0), event->xcreatewindow.override_redirect);
@@ -915,14 +791,8 @@ XEvent_override_redirect(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_from_configure(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 30:
 			switch(event->type) {
 				case  UnmapNotify:
 					sv_setiv(ST(0), event->xunmap.from_configure);
@@ -930,14 +800,8 @@ XEvent_from_configure(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_above(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 31:
 			switch(event->type) {
 				case  ConfigureNotify:
 				case  ConfigureRequest:
@@ -946,14 +810,8 @@ XEvent_above(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_value_mask(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 32:
 			switch(event->type) {
 				case  ConfigureRequest:
 					sv_setiv(ST(0), event->xconfigurerequest.value_mask);
@@ -961,14 +819,8 @@ XEvent_value_mask(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_place(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 33:
 			switch(event->type) {
 				case  CirculateNotify:
 				case  CirculateRequest:
@@ -977,14 +829,8 @@ XEvent_place(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_atom(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 34:
 			switch(event->type) {
 				case  PropertyNotify:
 					sv_setiv(ST(0), event->xproperty.atom);
@@ -992,14 +838,8 @@ XEvent_atom(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_selection(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 35:
 			switch(event->type) {
 				case  SelectionClear:
 					sv_setiv(ST(0), event->xselectionclear.selection);
@@ -1013,14 +853,8 @@ XEvent_selection(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_owner(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 36:
 			switch(event->type) {
 				case  SelectionRequest:
 					sv_setiv(ST(0), event->xselectionrequest.owner);
@@ -1028,14 +862,8 @@ XEvent_owner(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_target(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 37:
 			switch(event->type) {
 				case  SelectionRequest:
 					sv_setiv(ST(0), event->xselectionrequest.target);
@@ -1046,14 +874,8 @@ XEvent_target(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_property(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 38:
 			switch(event->type) {
 				case  SelectionRequest:
 					sv_setiv(ST(0), event->xselectionrequest.property);
@@ -1064,14 +886,8 @@ XEvent_property(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_colormap(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 39:
 			switch(event->type) {
 				case  ColormapNotify:
 					sv_setiv(ST(0), event->xcolormap.colormap);
@@ -1079,14 +895,8 @@ XEvent_colormap(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_c_new(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 40:
 			switch(event->type) {
 				case  ColormapNotify:
 					sv_setiv(ST(0), event->xcolormap.new);
@@ -1094,14 +904,8 @@ XEvent_c_new(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_message_type(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 41:
 			switch(event->type) {
 				case  ClientMessage:
 					sv_setiv(ST(0), event->xclient.message_type);
@@ -1109,14 +913,8 @@ XEvent_message_type(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_format(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 42:
 			switch(event->type) {
 				case  ClientMessage:
 					sv_setiv(ST(0), event->xclient.format);
@@ -1124,14 +922,8 @@ XEvent_format(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_data(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 43:
 			switch(event->type) {
 				case  ClientMessage:
 					sv_setpvn(ST(0), event->xclient.data.b, 20);
@@ -1139,14 +931,8 @@ XEvent_data(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_request(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 44:
 			switch(event->type) {
 				case  ClientMessage:
 					sv_setiv(ST(0), event->xmapping.request);
@@ -1154,14 +940,8 @@ XEvent_request(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_first_keycode(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 45:
 			switch(event->type) {
 				case  ClientMessage:
 					sv_setiv(ST(0), event->xmapping.first_keycode);
@@ -1169,14 +949,8 @@ XEvent_first_keycode(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_resourceid(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 46:
 			switch(event->type) {
 				case  0:
 					sv_setiv(ST(0), event->xerror.resourceid);
@@ -1184,14 +958,8 @@ XEvent_resourceid(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_error_code(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 47:
 			switch(event->type) {
 				case  0:
 					sv_setpvn(ST(0), (char *)&event->xerror.error_code, 1);
@@ -1199,14 +967,8 @@ XEvent_error_code(event)
 				default:
 					break;
 			}
-		}
-
-void
-XEvent_request_code(event)
-	XEvent *	event
-	CODE:
-		{
-			ST(0) = sv_newmortal(); 
+			break;
+		case 48:
 			switch(event->type) {
 				case  0:
 					sv_setpvn(ST(0), (char *)&event->xerror.request_code, 1);
@@ -1214,4 +976,7 @@ XEvent_request_code(event)
 				default:
 					break;
 			}
+			break;
 		}
+	}
+

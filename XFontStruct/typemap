@@ -1,0 +1,3 @@
+TYPEMAP
+XFontStruct *	T_PTROBJ
+Font		T_IV

@@ -1,5 +1,5 @@
-#    README - An extension to PERL to access XForms functions.
-#    Copyright (C) 1996  Martin Bartlett
+#    README - An extension to Perl to access Xforms functions.
+#    Copyright (C) 1996-1997  Martin Bartlett
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,73 +15,104 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-Introduction
+*** INTRODUCTION
 
-This is an extension to PERL that allows you to call the XForms functions 
-from a standard PERL script. The implications are quite impressive - you
-can now develop complex X applications in PERL. The package includes a
-number of examples in the DEMOS directory (sound familiar?), many of which
-are unashamedly plagerised from the XForms DEMOS directory. The inspiration
-for this project is also included - XFtool, an 'MS Office'-like toolbar. 
-This is the second release of the extension and operates only with the new 
-version 0.80 and later of the XForms library.
+This is an extension to Perl that allows you to call the Xforms functions 
+from a standard Perl script. The implications are quite impressive - you
+can now develop complex X applications in Perl. The package includes a
+number of examples in the DEMOS directories (sound familiar?), many of which
+are unashamedly plagerised from the Xforms DEMOS directory. The inspiration
+for this project is also included - XFtool, an 'MS Office'-like toolbar -
+as are a couple of other useful applications developed using the package. 
 
-Please consider this a Beta release - that is, it's a release that may cause
-you to beat your head on a hard spiky object! I have not tested EVERY 
-function since most are implemented with bog-standard XSUB code. I HAVE
-attempted to test the ones where I go slightly-to-wildly astray from XSUB
-normality (such as XEvent processing and callback logic).
+This is the fifth release of the extension and operates with the 0.81 public 
+release and the 0.84 and 0.85 testing releases of the Xforms library. It 
+requires at least Perl 5.002.
 
-Whats Implemented
+Please consider this an Alpha release - that is, it's a release that may cause
+you to 'alf-beat your head on a hard spiky object! I have not tested EVERY 
+function. As releases pile up on each other this becomes less and less of a 
+'good-thing' since now most of the functions are definately NOT implemented 
+with bog-standard XSUB code. 
 
-Almost everything! From basic forms to XEvent processing, from GL canvases
-to XY plots. There is a file, Forms.not_implemented that covers whats NOT
-here - and why (even weak excuses like 'Hey, I'm moving house' are included!).
+*** WHAT'S IMPLEMENTED
 
-For the most part, the functions have the same protocols from PERL as they do
+Almost everything in Xforms 0.81,  0.84 and 0.85! From basic forms to XEvent 
+processing, from GL canvases to XY plots. There is a file, 
+Xforms.not_implemented that covers whats NOT here - and why.
+
+For the most part, the functions have the same protocols from Perl as they do
 from C. This proves mighty useful, since you can very easily convert the 
-nnnnnnn.c output from Fdesign into equivalent PERL statements - almost always
-via a simple cut-and-paste into your PERL script. Where there are differences
-these are detailed in the Forms.functions file. A COMPLETELY untried and
-untested (by me) perl script is included to perform such conversions.
+nnnnnnn.c output from Fdesign into equivalent Perl statements. 
+
+To this end, the master directory contains a program named fd2perl which is
+an fdesign filter program. By invoking fdesign in the following way:
+
+	fdesign -perl
+
+a file, by the name of your .fd file but with a .pl suffix, will be generated.
+This will contain the perl code to build your fdesign-ed forms. The program is
+also callable from the command line. 
 
 Before using the extension, please read the comments at the top of the
-Forms.functions file. They contain information that you should be aware of,
+Xforms.functions file. They contain information that you should be aware of,
 especially usage restrictions (I don't mean copyright restrictions, I mean
 things that you can't do because you'll probably die horribly!!!!).
 
-How's it implemented
+*** HOW'S IT IMPLEMENTED
 
-The extension comes as 11 separate perl modules:
+The world changes here! In this release the packaging has been completely
+overhauled and amended to comply with standard Perl extension conventions. 
 
-	Forms_BASIC		All the basic stuff, including perl oo syntax
-				access to the FL_FORM and FL_OBJECT structures
-	Forms_CANVAS		None OpenGL Canvas Object support
-	Forms_CHOICE_OBJS	Menus, Choices and Popups
-	Forms_DRAW		Free objects and drawing routines
-	Forms_GOODIES		The XForms Goodies
-	Forms_OPEN_GL		OpenGL Canvas Object support
-	Forms_PLOT_OBJS		Charts and XYPlots
-	Forms_VAL_OBJS		Sliders, Positioners and Counters
-	Forms_WIN		Window manipulation routines
-	Forms_XEVENT		XEvent manipulation routines
-	XEvent			Not strictly XForms - a module that provides
-				perl oo syntax access to the contents of
-				XEvent structures used by Forms_XEVENT.
+The first thing to note is that I have reverted back to a single package 
+for the Xforms related stuff, with two other independant packages relating to 
+XEvent and XFontStruct structure access. The package itself has undergone its 
+third name change. It is now called Xforms, and I intend to leave it at that.
 
-There are two files that help you sort out what modules you need for a 
-particular application:
+The reason for this reversion is that the single package is now smaller than 
+the combined packages of the previous release, slightly bigger than the main 
+Forms_BASIC package therein (unstripped), due to copious (ab)use of the xsubpp
+compiler's new-found ability to use aliases. This also means that the package
+will NOT compile on anything earlier than Perl5.002.
 
-	Forms.functions		lists all supported functions, grouped by 
-				perl module. Also provides detailed syntax
-				of functions. READ THIS FIRST!
-	Forms.all_functions	lists all functions alphabetically, with 
-				the name of the perl module that implements
-				each function.
+In previous versions, there were two files that used to help you sort out what 
+modules you needed for a particular application: forms.functions and 
+forms.all_functions. The former still exists (but is renamed to 
+Xforms.functions) since it also lists protocol differences between the Xforms
+'C' interface and those provided by this package. The latter, however, has 
+been removed. The Xforms.constants file still exists, containing usage notes 
+for symbolic constants.
 
-Whats improved since the first cut
+*** WHAT'S CHANGED SINCE VERSION 0.4
+
+	. Single package named 'Xforms' replaces all Forms_* packages
+	. Package version numbers conform to perl standards
+	. OpenGL support is conditionally 'enable-able' using C compiler 
+	  directives to include or exclude it based upon a symbol defined 
+	  (or not) in the makefile
+	. Extensive use of 'ALIAS'es in the xsubs allows a huge reduction
+	  in the Xforms library size
+	. Consequently this version will not compile in Perl 5.001
+	  environments (actually its the xs compiler that is the problem)
+	. XEvent and XFontStruct packages also enjoy size reduction benefits
+	  from alias usage.
+	. FD_FSELECTOR, FD_CMDLOG (>=0.84), FL_EditKeymap(>=0.85) , and FL_IOPT
+	  structures defined as perl objects
+	. Extensive write access added to fields of FL_OBJECT and FL_FORM.
+	. Pixmap and bitmap data support added
+	. 0.84 and 0.85 changes and additions 
+	. Forms 0.81, 0.84, and 0.85 supported (recompile required on change)
+	  with constant values reflecting the correct version (yes some did
+	  change their values between versions!)
+	. Old cnvrtfd.pl fdesign file converter modified to be a valid
+	  fdesign filter, and renamed to fd2perl.
+	. Conversion routine to move 0.4 scripts to 0.5 added.
+
+*** WHAT IMPROVED BETWEEN THE FIRST CUT AND VERSION 0.4
 
 	. obviously the huge increase in supported functions. 
+	. fl_initialize now supports the FL_CMD_OPT parameters. 
+	. the fl...resource functions are now supported.
 	. There are also fixes to the very weak callback mechanism I used in 
 	  the first one - like no longer ignoring warnings in the perlcall 
 	  manual page!! 
@@ -92,6 +123,10 @@ Whats improved since the first cut
 	  Using the separate, but jointly delivered XEventPtr extension 
 	  (found in the XEvent directory), you can access the XEvent 
 	  structures returned by some Forms functions. 
+	. XFontStruct structures are registered as perl objects of class 
+	  XFontStructPtr. Using the separate, but jointly delivered XEventPtr 
+	  extension (found in the XFontStruct directory), you can manipulate 
+	  the XFontStruct structures used by some Forms functions. 
 	. You now have read access to the more interesting fields in the 
 	  FL_OBJECT and FL_FORM structures (via perl OO syntax - $form->window 
 	  for instance) and you have read AND WRITE access to the u_vdata and 
@@ -105,25 +140,23 @@ Whats improved since the first cut
 	  to help with run time speed (most standard applications will only 
 	  require one or two of the modules).
 
-What you need
+*** WHAT YOU NEED
 
 You need a couple of things: 
 
-	T.C.Zhao's and Mark Overmars' Forms Library for X, version 0.8. 
-	You can get that from
+	. T.C.Zhao's and Mark Overmars' Forms Library for X, version 0.81 or 
+	  above. You can get that from
 
-		bloch.phys.uwm.edu /pub/xforms
-		(in the test directory at the time of writing!)
+		einstein.phys.uwm.edu /pub/xforms
 
-	PERL version 5.001. In fact I am using a version that is patched to
-	level M. You need to have installed the full distribution (though
-	you don't need the source tree itself). The make process checks
-	your kit - but don't thank me for that as its all part of the 
-	standard PERL extension implementation process! You need the 
-	PERL extensions that get distributed with PERL but no others.
-	The package has been tested successfully on 5.002 as well.
+	. Perl version 5.003. You need to have installed the full distribution
+	  (though you don't need the source tree itself). The make process 
+	  checks your kit - but don't thank me for that as its all part of the 
+	  standard Perl extension implementation process! You need the 
+	  Perl extensions that get distributed with Perl but no others.
+	  The package may compile successfully on 5.002 as well.
 
-How to implement it
+*** HOW TO INSTALL IT
 
 If you are reading this then you know how to gunzip/untar the distribution!
 From there you SHOULD be able to just do the following IF you want to use
@@ -131,55 +164,126 @@ the extension as a dynamically loaded extension. If you want it statically
 bound then you need to read the comments that are found in the Makefile
 generated by the first step:
 
-In each of the Forms_* directories (but DON'T do Forms_OPEN_GL unless you
-actually have OpenGL implemented), and the XEvent directory:
+In each of the Xforms, XEvent and XFontStruct directories of the master 
+directory:
 
-	edit Makefile.PL     # Read the comments in Makefile.PL that pertain
-			     # to Include paths, Library paths, and OpenGL
+	1) edit Makefile.PL  # Read the comments in Makefile.PL that pertain
+			     # to Include paths, Library paths, and OpenGL,
 			     # and make any necessary changes.
 
-	perl Makefile.PL     # to make the makefile using the PERL 
+	2) perl Makefile.PL  # to make the makefile using the Perl 
 			     # MakeMaker.pm extension 
 
-	make dynamic         # To make a dynamic extension. You may get
-	      		     # a general make failure with the error:
+	3) make 	     # To make a dynamic extension. The old error
 			     #	   ./blib/auto/Forms/.packlist: No such file 
 			     #	   or directory
-			     # If you get that, just run make dynamic again -
-			     # weird eh???????
+			     # does not seem to occur at Perl 5.002 and above
+			     # Ignore duplicate alias warnings
 
-	make install	     # To install the extension.
+	4) make install	     # To install the extension.
 
-Yes, yes, I know, I should have a nice little front end in the master directory,
-but I don't, alright!! Perhaps when it goes non-beta (probably when Forms 0.8x
-goes official).
+Then,
 
-Now you are ready to use the extension. Have a look in the DEMOS directory
-for examples of use.
+        5) cp fd2perl ...    # Where ... is a deirectory that is in your
+			     # PATH when you run fdesign
 
-Development details
+	6) Convert you Xforms4Perl 0.4 scripts to 0.5 (see below)
 
-This extension was developed on an IBM Thinkpad 755cs running Linux 1.2.13
-from Slackware, X11R6, the XForms Library 0.8 and PERL 5.001m. It should work 
-on any version of Linux that runs other XForms applications and PERL 5.001
-and above. It should also run on any Unix system that can run XForms and 
-PERL 5.001 and above, or at least be reasonably easy to port.
+If you want minimum size then, before step four, locate the .so files in
+the blib/arch/auto/<package name> subdirectory of each directory, and execute
+your system's 'strip' program against the files. On my system this cuts about
+30K off the Xforms package alone.
+
+Well, I'm nice! I have actually provided a RUDIMENTARY shell script that
+does steps 2 through 4 for you. It's called MakeF4P and it's in the master 
+directory - and I do NOT gaurantee its accuracy (but it works for me!)
+
+You run MakeF4P from the master directory and it will make everything you need.
+BUT if you want OpenGL you MUST make the necessary changes to the Makefile.PL
+file in the Xforms subdirectory BEFORE running MakeF4P. 
+
+The script will write all make results to a file named make.results in each of 
+the direct subdirectories of the master directory. It will ask you if you 
+want to look at the results once it has finished - you should!
+
+Note that the script also performs the 'strip' step mentioned above.
+
+*** HOW TO CONVERT Xforms4Perl 0.4 SCRIPTS TO Xforms4Perl 0.5
+
+There's not much to do - just remove all
+
+	use Forms_<whatever>;
+
+statements and add
+
+	use Xforms;
+
+But I have been nice (again). There is a Perl script named cnvt4to5.pl which
+will do the work for you. Invoke it like this:
+
+	cnvt4to5.pl <script.1> ...
+
+It will back up the old script with a suffix of '.x4p.4'.
+
+Note that the Xforms component Xforms4Perl.5 does not remove the Forms_*
+packages of Xforms4Perl.4, and does not even disable them. This is because  
+of the differences in package names. To remove Xforms4Perl5 you must look
+in the site_perl directory of your base perl directory (mine is /usr/lib/perl5)
+and remove all files and directories with names matching 'Forms_*' (in UNIX
+file globbing notation).
+
+*** HOW TO USE IT
+
+Basically just add
+
+	use Xforms;
+
+to your perl script, then follow the instructions given in the xforms
+documentation, making any necessary semantic transformations between the
+C presented therin and the Perl you are using. See the Xforms.functions
+file in the master directory for more details on this. Also, take a look
+at the DEMOS directories for examples of usage.
+
+*** OPENGL NOTES
+
+The OpenGL related functions are now part of Xforms. To use them you 
+MUST change the Makefile.PL file in the Xforms directory. See the comments 
+in Makefile.PL for details. If you attempt to use an OpenGL function WITHOUT 
+compiling them into the package then your perl script will die with a message:
+
+	Xforms4Perl OpenGL functions are not installed.
+
+To rectify, make the changes necessary in the Makefile.PL and re-build the 
+package.
+
+*** DEVELOPMENT DETAILS
+
+This version was developed on an IBM Thinkpad 760ED running Linux 2.0.28
+from RedHat, X11R6, the Xforms Library 0.81 and Perl 5.003. It should work 
+on any version of Linux that runs other Xforms applications and Perl 5.002
+and above. It should also run on any Unix system that can run Xforms and 
+Perl 5.002 and above, or at least be reasonably easy to port.
 
 Your implementation stories, along with comments/questions/bug-reports are
 welcome, to 
 
 	martin@nitram.demon.co.uk
 
-or on the XForms mailing list, which I read (but to make sure I do, put the
-phrase 'Forms for PERL' in the heading!!)
+or on the Xforms mailing list, which I read (but to make sure I do, put the
+phrase 'Xforms4Perl' in the heading!!)
 
-THANKS
+*** THANKS
 
 My main 'other party' thanks goes to Zoran Popovic <zoran@cs.cmu.edu> for
-his extensive testing efforts (especially around the OpenGL area, and using 
-PERL 5.002) and suggestions, and also for the convert fd file script 
-(cnvrtfd.pl, found in the master directory). 
+his extensive testing efforts on the original versions (especially around the 
+OpenGL area) and suggestions, and also for the convert fd file script upon 
+which the fdesign filter is based (fd2perl, found in the master directory). 
 
-Thanks also to Reza Naima <reza@reza.extern.ucsd.edu> for the proc-lookup demo.
+Thanks to the CPAN people for their packaging comments - it only took me six
+months to implement their ideas!!
 
-Martin Bartlett 
+Growing thanks go to Reza Naima <reza@reza.extern.ucsd.edu>, who has tested
+and championed this other-wise personal project more as each release has
+been delivered. Reza provided the proc-lookup demo.
+
+Martin Bartlett

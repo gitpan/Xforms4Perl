@@ -1,0 +1,89 @@
+#    Xforms.not_implemented - An extension to Perl to access Xforms functions.
+#    Copyright (C) 1996-1997  Martin Bartlett
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+These functions have not been implemented for various reasons, explained
+below. users ideas and/or suggestions and/or advice on overcoming the
+stated problems are welcome:
+
+	fl_add/create_mesacanvas
+
+		Since this doesn't get compiled into the XForms distribution
+		it is not included in the package.
+
+	fl_add_symbol/fl_draw_symbol
+
+		Due to the way the package handles callbacks (by registering
+		a generic routine and saving off the Perl callback in an
+		easy to find location) it is essential that the callback
+		itself provide some means of finding where the Perl
+		routine address is held. add_symbol/draw_symbol does not.
+		If the text of the symbol provided on the add_symbol call
+		were returned on the callback call then all would be well.
+		Or, if the callback accepted a pointer to a user parm then
+		we could use that instead (see how fl_selector app_buttons
+		are handled for that technique). But alas not. Therefore no
+		symbol stuff.
+
+	fl_setpup_itemcb/fl_setpup_menucb
+
+		Similar problems - no way to tell the difference between
+		a callback from a menu and a callback from an item (or,
+		more specifically, to distinguish what menu an item callback
+		came from). That probably makes the rest of the popup stuff
+		pointless - but its all there anyway.
+
+	fl_add_button_class
+
+		Similar problems.
+
+	fl_flip_yorigin
+		
+		Primarily for use with past versions of Xforms - none of
+		which are supported by Xforms4Perl anyway.
+
+	fl_get_vn_value/fl_get_vn_name
+
+		esoteric and probably not applicable to Perl, since hashes
+		acheive the same.
+
+	fl_free/malloc/calloc/realloc
+
+		No use in perl
+
+	fl_set_canvas_attributes
+
+		Well, ok, its there - but you will need to do some hefty
+		stuff to build the XSetWindowAttributes structure and send
+		its address to me!
+ 
+	fl_enumerate_fonts
+
+		Similar - or I got lazy. If you REALLY want this then tell me
+		and I'll put it in the next release!
+
+	The file sys stuff (such as dirlist filter stuff)
+
+		This is easily supported by base Perl.
+
+	fl_create_colormap
+
+		Relies on XVisualInfo structure which I have not provided 
+		access to (yet!)
+
+	fl_v2f/i/s/d
+
+		C-array reliant for which there is little need in perl

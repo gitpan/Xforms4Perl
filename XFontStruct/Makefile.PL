@@ -1,4 +1,4 @@
-#    XEvent.pm - An extension to PERL to access XEvent structures.
+#    XFontStruct.pm - An extension to PERL to access XFontStruct structures.
 #    Copyright (C) 1996-1997  Martin Bartlett
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-    'NAME'	=> 'XEvent',
+    'NAME'	=> 'XFontStruct',
     'VERSION'	=> '0.5',
     'LIBS'	=> ['-L/usr/X11/lib -lX11'],   # e.g., '-lm' 
     'DEFINE'	=> '',     # e.g., '-DHAVE_SOMETHING' 
